@@ -108,9 +108,7 @@ gridview > child:hover {{ {pah(D['grid_hover'], 5)} }}
 gridview > child:selected, columnview > listview > row:selected {{ {pah(D['sel'], 5, D['sel_frame'])} }}
 gridview > child .thumbnail, .icon-ui-labels-box {{ border-radius: 0; }}
 
-/* Pencere gölgesi; çerçeve çizgisi ve köşe kesiği Glass Windows eklentisinden */
-window.csd {{ box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5); }}
-window.csd:backdrop {{ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }}
+/* Pencere gölgesi GTK varsayılanı: büyütülmüş gölge Zen ve masaüstünde (DING) fare koordinatlarını kaydırdı (2026-10-26) */
 
 /* Pencere düğmeleri: macOS trafik ışığı yok; pahlı, sessiz; kapat üstüne gelince kırmızı */
 windowcontrols button {{ {pah('transparent')} min-width: 28px; min-height: 28px; padding: 0; margin: 0 1px; }}
@@ -236,7 +234,6 @@ tooltip, frame, scrollbar slider, switch, switch slider, progressbar trough,
 progressbar progress, scale trough, scale highlight, list, row, notebook tab,
 decoration, window, .titlebar, headerbar, check {{ border-radius: 0; }}
 radio, scale slider, button.circular {{ border-radius: 999px; }}
-decoration {{ box-shadow: 0 0 0 1px {P['line']}, 0 18px 48px rgba(0, 0, 0, 0.5); }}
 placessidebar row:selected, .navigation-sidebar row:selected {{
   background-color: rgba(168, 132, 255, 0.12); box-shadow: inset 2px 0 {P['accent']}; color: {P['fg']};
 }}
