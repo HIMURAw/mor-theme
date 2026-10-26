@@ -117,6 +117,17 @@ windowcontrols button {{ {pah('transparent')} min-width: 28px; min-height: 28px;
 windowcontrols button image {{ background: none; box-shadow: none; padding: 5px; border-radius: 0; }}
 windowcontrols button:hover {{ {pah(D['ctl_hover'], 5)} }}
 windowcontrols button.close:hover {{ {pah(P['destructive'], 5)} color: #ffffff; }}
+
+/* Nautilus liste görünümü: Windows Gezgini "Ayrıntılar" gibi ince satırlar (2026-10-26) */
+.nautilus-list-view columnview > listview > row {{ min-height: 0; padding-top: 0; padding-bottom: 0; margin-left: 8px; margin-right: 8px; }}
+.nautilus-list-view columnview > listview > row > cell {{ padding: 0; min-height: 0; }}
+.nautilus-list-view .nautilus-view-cell, .nautilus-list-view.compact .nautilus-view-cell {{ padding: 2px 8px; min-height: 22px; }}
+.nautilus-list-view button.star {{ min-height: 0; min-width: 0; padding: 0 4px; margin: 0; }}
+.nautilus-list-view columnview > listview > row:hover {{ {pah(D['grid_hover'], 3)} }}
+.nautilus-list-view columnview > listview > row:selected {{ {pah(D['sel'], 3, D['sel_frame'])} }}
+.nautilus-list-view columnview > header > row > button {{ padding: 4px 8px; min-height: 0; font-weight: 400; }}
+.nautilus-list-view columnview > header > row > button:not(:last-child) {{ box-shadow: inset -1px 0 {P['line']}; }}
+.nautilus-list-view .thumbnail, .nautilus-list-view image {{ -gtk-icon-size: 16px; }}
 """
 
 
