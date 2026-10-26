@@ -302,6 +302,25 @@ SHELL_EK = f"""
 """
 
 
+def koyu_menu(metin):
+    """Orchis 'Dark' bile hızlı ayar alt menülerini (Güç, Wi-Fi listesi…) beyaz zemin + siyah
+    yazıyla !important çiziyor; Dinamik Ada zemini koyu cama çevirince yazı siyah kalıyordu
+    (Umut, 2026-10-26). Bu bloklarda siyah→açık lavanta-beyaz, beyaz zemin→menü moru."""
+    def blok(m):
+        sec, govde = m.group(1), m.group(2)
+        if "quick-toggle-menu" not in sec:
+            return m.group(0)
+        def rgba(mm):
+            prop, a = mm.group(1), float(mm.group(2))
+            if "background" in prop or "border" in prop:
+                return f"{prop}: rgba(255, 255, 255, {round(a * 0.8, 2)})"
+            return f"{prop}: rgba(238, 235, 247, {min(1.0, round(a + 0.2, 2))})"
+        govde = re.sub(r"([\w-]+):\s*rgba\(0, 0, 0, ([\d.]+)\)", rgba, govde)
+        govde = re.sub(r"background-color:\s*white", f"background-color: {P['popover_bg']}", govde)
+        return sec + "{" + govde + "}"
+    return re.sub(r"([^{}]+)\{([^}]*)\}", blok, metin)
+
+
 def shell():
     hedef = OUT / "gnome-shell"
     if hedef.exists():
@@ -311,7 +330,7 @@ def shell():
         if f.suffix in (".css", ".svg"):
             t = renklendir(f.read_text())
             if f.suffix == ".css":
-                t = kare(t)
+                t = koyu_menu(kare(t))
                 if f.name == "gnome-shell.css":
                     t += SHELL_EK
             f.write_text(t)
