@@ -1,0 +1,274 @@
+#!/usr/bin/env python3
+"""Mor teması: Dinamik Ada ve Glass Dock'un mor cam dilinden türetilmiş masaüstü teması.
+
+Üretir:
+  ~/.themes/Mor/gtk-3.0     GTK3 uygulamaları (adw-gtk3-dark üstüne renk + köşe)
+  ~/.config/gtk-4.0/gtk.css libadwaita uygulamaları (Nautilus, Ayarlar, ...)
+  ~/.themes/Mor/gnome-shell Shell (Orchis-Purple-Dark kopyası, renk tonu mora çekilir, köşeler kare)
+
+Palet tek yerde (PALET). Değiştir, yeniden çalıştır:  python3 build.py
+Kurulum sonrası:  gsettings set org.gnome.desktop.interface gtk-theme Mor
+                  gsettings set org.gnome.shell.extensions.user-theme name Mor
+"""
+import colorsys
+import re
+import shutil
+from pathlib import Path
+
+HOME = Path.home()
+OUT = HOME / ".themes/Mor"
+GTK4 = HOME / ".config/gtk-4.0"
+SHELL_SRC = HOME / ".themes/Orchis-Purple-Dark/gnome-shell"
+
+# Adanın camı rgba(27,22,44), çerçevesi lavanta rgba(168,132,255), robotun morları.
+PALET = {
+    "window_bg": "#161221",
+    "view_bg": "#120f1b",
+    "headerbar_bg": "#1b162c",
+    "sidebar_bg": "#18142a",
+    "popover_bg": "#201b30",
+    "card_bg": "rgba(255, 255, 255, 0.045)",
+    "fg": "#eeebf7",
+    "accent_bg": "#6f55d6",
+    "accent": "#b39cff",
+    "accent_fg": "#ffffff",
+    "line": "rgba(168, 132, 255, 0.16)",
+    "frame": "rgba(168, 132, 255, 0.55)",
+    "destructive": "#ff4f6b",
+    "success": "#3ed6a0",
+    "warning": "#ff9f0a",
+}
+P = PALET
+
+# İmza: kare köşe (Umut adada "radius'suz hali daha güzeldi" dedi, 2026-10-13) ve
+# seçili satırın solunda lavanta çizgi.
+GTK4_CSS = f"""/* Mor — üretildi: ~/.local/src/mor-theme/build.py, elle düzenleme */
+:root {{
+  --window-radius: 0px;
+  --accent-bg-color: {P['accent_bg']};
+  --accent-fg-color: {P['accent_fg']};
+  --accent-color: {P['accent']};
+  --destructive-bg-color: {P['destructive']};
+  --destructive-color: {P['destructive']};
+  --success-bg-color: #23a87a;
+  --success-color: {P['success']};
+  --warning-bg-color: #d98500;
+  --warning-color: {P['warning']};
+  --error-bg-color: {P['destructive']};
+  --error-color: {P['destructive']};
+
+  --window-bg-color: {P['window_bg']};
+  --window-fg-color: {P['fg']};
+  --view-bg-color: {P['view_bg']};
+  --view-fg-color: {P['fg']};
+  --headerbar-bg-color: {P['headerbar_bg']};
+  --headerbar-fg-color: {P['fg']};
+  --headerbar-backdrop-color: {P['window_bg']};
+  --headerbar-border-color: {P['line']};
+  --headerbar-shade-color: {P['line']};
+  --sidebar-bg-color: {P['sidebar_bg']};
+  --sidebar-fg-color: {P['fg']};
+  --sidebar-backdrop-color: {P['window_bg']};
+  --sidebar-border-color: {P['line']};
+  --sidebar-shade-color: {P['line']};
+  --secondary-sidebar-bg-color: {P['window_bg']};
+  --secondary-sidebar-fg-color: {P['fg']};
+  --secondary-sidebar-backdrop-color: {P['window_bg']};
+  --secondary-sidebar-border-color: {P['line']};
+  --card-bg-color: {P['card_bg']};
+  --card-fg-color: {P['fg']};
+  --card-shade-color: rgba(0, 0, 0, 0.36);
+  --dialog-bg-color: {P['popover_bg']};
+  --dialog-fg-color: {P['fg']};
+  --popover-bg-color: {P['popover_bg']};
+  --popover-fg-color: {P['fg']};
+  --popover-shade-color: rgba(0, 0, 0, 0.4);
+  --thumbnail-bg-color: {P['popover_bg']};
+  --thumbnail-fg-color: {P['fg']};
+  --overview-bg-color: {P['view_bg']};
+  --overview-fg-color: {P['fg']};
+  --border-color: {P['line']};
+  --scrollbar-outline-color: rgba(0, 0, 0, 0.4);
+}}
+
+/* Kare köşe */
+button, entry, spinbutton, dropdown > button, combobox > box > button,
+.card, list.boxed-list, .boxed-list, row, popover > contents, popover > arrow,
+menu, .menu, tooltip, toast, .osd, frame, scrollbar slider, switch, switch > slider,
+progressbar trough, progressbar progress, scale trough, scale highlight,
+windowcontrols button, tabbox tab, tab, .navigation-sidebar > row,
+placessidebar row, searchbar entry, .linked > *, viewswitcher button,
+dialog.alert .dialog-contents, window.dialog.message, .background.csd,
+window.csd, window.solid-csd, sheet, floating-sheet > sheet, banner > revealer > widget,
+checkbutton check, check, .path-bar-box, .nautilus-path-bar, .path-bar button,
+searchbar > revealer > box entry {{ border-radius: 0; }}
+radio, checkbutton radio, scale slider, button.circular, avatar {{ border-radius: 999px; }}
+
+/* Çerçeve: pencerenin kenarında lavanta çizgi, odakta daha belirgin */
+window.csd {{ box-shadow: 0 0 0 1px {P['line']}, 0 18px 48px rgba(0, 0, 0, 0.5); }}
+window.csd:backdrop {{ box-shadow: 0 0 0 1px rgba(168, 132, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.4); }}
+popover > contents, menu, .menu {{ box-shadow: 0 0 0 1px {P['line']}, 0 10px 30px rgba(0, 0, 0, 0.45); }}
+
+/* Seçili kenar çubuğu satırı: dolgu yerine soldan lavanta çizgi */
+.navigation-sidebar > row:selected, placessidebar row:selected {{
+  background-color: rgba(168, 132, 255, 0.12);
+  box-shadow: inset 2px 0 {P['accent']};
+  color: {P['fg']};
+}}
+.navigation-sidebar > row:selected:hover {{ background-color: rgba(168, 132, 255, 0.18); }}
+
+/* Nautilus dosya ızgarası ve listesi */
+gridview > child:selected, columnview > listview > row:selected {{
+  background-color: rgba(168, 132, 255, 0.16);
+  box-shadow: inset 0 0 0 1px {P['frame']};
+}}
+gridview > child {{ border-radius: 0; }}
+gridview > child .thumbnail, .icon-ui-labels-box {{ border-radius: 0; }}
+
+/* Pencere düğmeleri: macOS trafik ışığı yerine kare, sessiz; kapat üstüne gelince kırmızı */
+windowcontrols button {{ min-width: 26px; min-height: 26px; padding: 0; margin: 0 1px; }}
+windowcontrols button image {{ background: none; box-shadow: none; padding: 4px; border-radius: 0; }}
+windowcontrols button:hover image {{ background-color: rgba(168, 132, 255, 0.18); }}
+windowcontrols button.close:hover image {{ background-color: {P['destructive']}; color: #ffffff; }}
+
+/* Odak halkası lavanta */
+*:focus-visible {{ outline-color: {P['frame']}; outline-width: 1px; }}
+"""
+
+GTK3_COLORS = f"""@define-color accent_bg_color {P['accent_bg']};
+@define-color accent_fg_color {P['accent_fg']};
+@define-color accent_color {P['accent']};
+@define-color destructive_bg_color {P['destructive']};
+@define-color destructive_color {P['destructive']};
+@define-color success_color {P['success']};
+@define-color warning_color {P['warning']};
+@define-color error_color {P['destructive']};
+@define-color window_bg_color {P['window_bg']};
+@define-color window_fg_color {P['fg']};
+@define-color view_bg_color {P['view_bg']};
+@define-color view_fg_color {P['fg']};
+@define-color headerbar_bg_color {P['headerbar_bg']};
+@define-color headerbar_fg_color {P['fg']};
+@define-color headerbar_backdrop_color {P['window_bg']};
+@define-color headerbar_border_color {P['line']};
+@define-color sidebar_bg_color {P['sidebar_bg']};
+@define-color sidebar_fg_color {P['fg']};
+@define-color sidebar_backdrop_color {P['window_bg']};
+@define-color card_bg_color {P['card_bg']};
+@define-color card_fg_color {P['fg']};
+@define-color dialog_bg_color {P['popover_bg']};
+@define-color dialog_fg_color {P['fg']};
+@define-color popover_bg_color {P['popover_bg']};
+@define-color popover_fg_color {P['fg']};
+@define-color borders {P['line']};
+"""
+
+GTK3_CSS = f"""/* Mor — üretildi: ~/.local/src/mor-theme/build.py, elle düzenleme */
+@import url("file://{HOME}/.local/share/themes/adw-gtk3-dark/gtk-3.0/gtk.css");
+{GTK3_COLORS}
+button, entry, spinbutton, combobox button, .linked > *, popover, menu, .menu,
+tooltip, frame, scrollbar slider, switch, switch slider, progressbar trough,
+progressbar progress, scale trough, scale highlight, list, row, notebook tab,
+decoration, window, .titlebar, headerbar, check {{ border-radius: 0; }}
+radio, scale slider, button.circular {{ border-radius: 999px; }}
+decoration {{ box-shadow: 0 0 0 1px {P['line']}, 0 18px 48px rgba(0, 0, 0, 0.5); }}
+placessidebar row:selected, .navigation-sidebar row:selected {{
+  background-color: rgba(168, 132, 255, 0.12); box-shadow: inset 2px 0 {P['accent']}; color: {P['fg']};
+}}
+"""
+
+
+# ---------- Shell: Orchis'i mora çek ----------
+
+HEDEF_TON = 258 / 360  # #a884ff'nin tonu
+
+
+def ton(r, g, b):
+    """Doygun rengi lavanta tonuna, griyi hafif mora çeker; açıklığı korur."""
+    h, l, s = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
+    if s > 0.2:
+        h, s = HEDEF_TON, min(1.0, s * 1.05)
+    elif l < 0.5:
+        h, s = HEDEF_TON, 0.28  # koyu gri -> mor-siyah (ada camı #1b162c gibi)
+    elif l < 0.92:
+        h, s = HEDEF_TON, 0.12
+    return tuple(round(c * 255) for c in colorsys.hls_to_rgb(h, l, s))
+
+
+def hex_degis(m):
+    v = m.group(1)
+    if len(v) == 3:
+        v = "".join(c * 2 for c in v)
+    r, g, b = ton(*(int(v[i:i + 2], 16) for i in (0, 2, 4)))
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+
+def rgba_degis(m):
+    r, g, b = (int(x) for x in m.group(1, 2, 3))
+    if (r, g, b) in ((255, 255, 255), (0, 0, 0)):
+        return m.group(0)  # saydam beyaz/siyah katmanlar kalsın
+    r, g, b = ton(r, g, b)
+    return f"rgba({r}, {g}, {b}, {m.group(4)})"
+
+
+def renklendir(metin):
+    metin = re.sub(r"#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b", hex_degis, metin)
+    return re.sub(r"rgba\(\s*(\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\s*\)", rgba_degis, metin)
+
+
+def kare(metin):
+    # Küçük yarıçaplar sıfır; yuvarlak öğeler (>=50px, düğme halkaları, anahtarlar) kalır.
+    def f(m):
+        n = float(m.group(1))
+        return m.group(0) if n >= 50 else "border-radius: 0"
+    return re.sub(r"border-radius:\s*([\d.]+)px", f, metin)
+
+
+SHELL_EK = f"""
+/* Mor ekleri */
+#panel {{ background-color: rgba(18, 15, 27, 0.72); }}
+.popup-menu-content, .candidate-popup-content, .modal-dialog, .quick-settings,
+.message-list, .calendar, .datemenu-popover {{
+  border: 1px solid {P['line']};
+}}
+.app-well-app:focus .overview-icon, .grid-search-result:focus .overview-icon {{
+  border: 1px solid {P['frame']};
+}}
+"""
+
+
+def shell():
+    hedef = OUT / "gnome-shell"
+    if hedef.exists():
+        shutil.rmtree(hedef)
+    shutil.copytree(SHELL_SRC, hedef)
+    for f in hedef.rglob("*"):
+        if f.suffix in (".css", ".svg"):
+            t = renklendir(f.read_text())
+            if f.suffix == ".css":
+                t = kare(t)
+                if f.name == "gnome-shell.css":
+                    t += SHELL_EK
+            f.write_text(t)
+
+
+def main():
+    (OUT / "gtk-3.0").mkdir(parents=True, exist_ok=True)
+    (OUT / "gtk-4.0").mkdir(parents=True, exist_ok=True)
+    (OUT / "index.theme").write_text(
+        "[Desktop Entry]\nType=X-GNOME-Metatheme\nName=Mor\nComment=Umut'un mor cam teması\n"
+        "\n[X-GNOME-Metatheme]\nGtkTheme=Mor\nIconTheme=Mor\n")
+    for n in ("gtk.css", "gtk-dark.css"):
+        (OUT / "gtk-3.0" / n).write_text(GTK3_CSS)
+        (OUT / "gtk-4.0" / n).write_text(GTK4_CSS)
+    for n in ("gtk.css", "gtk-dark.css"):
+        p = GTK4 / n
+        if p.is_symlink() or p.exists():
+            p.unlink()
+        p.write_text(GTK4_CSS)
+    shell()
+    print("Mor teması yazıldı:", OUT, GTK4)
+
+
+if __name__ == "__main__":
+    main()
