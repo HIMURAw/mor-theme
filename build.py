@@ -291,7 +291,9 @@ def kare(metin):
 
 SHELL_EK = f"""
 /* Mor ekleri */
-#panel {{ background-color: rgba(18, 15, 27, 0.72); }}
+/* Orchis'in #panel margin'i (3px) Dinamik Ada'nın "panel" adlı kutularına geçiyor; gizli
+   göstergeler (Etkinlikler, erişilebilirlik, klavye) sıfır yerine 6px kalıp boş kutu oluyordu. */
+#panel {{ background-color: rgba(18, 15, 27, 0.72); margin: 0; }}
 .popup-menu-content, .candidate-popup-content, .modal-dialog, .quick-settings,
 .message-list, .calendar, .datemenu-popover {{
   border: 1px solid {P['line']};
