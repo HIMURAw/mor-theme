@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""tema-rengi — switch the whole desktop's colour theme.
+
+    tema-rengi                 list the themes, show the current one
+    tema-rengi turkuaz|yesil|mavi|mor|gri
+
+Live at once: Dynamic Island, Glass Dock, Glass Widgets, Glass Windows (they watch the palette),
+Glass Files. Regenerated here: GTK 3/4 + Shell theme, libadwaita accent, wallpaper, Zen (next start).
+Icons (~34k) are rebuilt in the background and swapped in when ready (2–3 minutes).
+The Harvis robot keeps its violet in every theme.
+"""
+import json
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import tema  # noqa: E402
+
+HOME = Path.home()
+BACKGROUNDS = HOME / ".local/share/backgrounds"
+ZEN_CHROME = HOME / "zen-profile/chrome"
+ICONS = HOME / ".local/src/mor-icons/build.py"
+LOG = HOME / ".cache/tema-rengi.log"
+
+
+def gset(schema, key, value):
+    subprocess.run(["gsettings", "set", schema, key, value], check=False)
+
+
+def reload_gtk():
+    # GTK re-reads the theme (and ~/.config/gtk-4.0/gtk.css) when the theme name changes.
+    gset("org.gnome.desktop.interface", "gtk-theme", "Adwaita")
+    time.sleep(0.4)
+    gset("org.gnome.desktop.interface", "gtk-theme", "Mor")
+
+
+def reload_shell_theme():
+    subprocess.run(["dconf", "write", "/org/gnome/shell/extensions/user-theme/name", "''"], check=False)
+    time.sleep(0.6)
+    subprocess.run(["dconf", "write", "/org/gnome/shell/extensions/user-theme/name", "'Mor'"], check=False)
+
+
+def wallpaper(name, p):
+    src = HERE / "sablon/duvar/mor-neon.png"
+    if name == "mor":
+        out = BACKGROUNDS / "mor-neon.png"
+    else:
+        out = BACKGROUNDS / f"tema-{name}.png"
+        if not out.exists() or out.stat().st_mtime < src.stat().st_mtime:
+            # ImageMagick hue: 100 = unchanged, 200 = +180°.
+            hue = 100 + ((p["hue"] - tema.BASE_HUE) % 360) * 100 / 180
+            sat = 0 if p["sat"] == 0 else 100 * p["sat"]
+            subprocess.run(["magick", str(src), "-modulate", f"100,{sat:.0f},{hue:.1f}", str(out)], check=True)
+    uri = out.as_uri()
+    gset("org.gnome.desktop.background", "picture-uri", uri)
+    gset("org.gnome.desktop.background", "picture-uri-dark", uri)
+    gset("org.gnome.desktop.screensaver", "picture-uri", uri)
+
+
+def zen(p):
+    if not ZEN_CHROME.is_dir():
+        return False
+    for f in ("userChrome.css", "userContent.css"):
+        src = HERE / "sablon/zen" / f
+        if src.exists():
+            (ZEN_CHROME / f).write_text(tema.recolor_css(src.read_text(), p))
+    return True
+
+
+def icons_in_background(name):
+    LOG.parent.mkdir(parents=True, exist_ok=True)
+    script = (f"python3 '{ICONS}' > '{LOG}' 2>&1 && "
+              "gsettings set org.gnome.desktop.interface icon-theme Adwaita && sleep 0.5 && "
+              "gsettings set org.gnome.desktop.interface icon-theme Mor && "
+              f"notify-send -i preferences-desktop-theme 'Theme' 'Icons are now {tema.THEMES[name]['label'].lower()}.'")
+    subprocess.Popen(["bash", "-c", script], start_new_session=True,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def main():
+    cur = tema.current()["name"]
+    if len(sys.argv) < 2:
+        for n, t in tema.THEMES.items():
+            print(f"{'*' if n == cur else ' '} {n:8} {t['label']}")
+        return 0
+    name = tema.ALIASES.get(sys.argv[1].casefold(), sys.argv[1].casefold())
+    if name not in tema.THEMES:
+        print(f"Unknown theme: {sys.argv[1]}. Themes: {', '.join(tema.THEMES)}", file=sys.stderr)
+        return 1
+    p = {**tema.THEMES[name], "name": name}
+
+    tema.CONFIG.parent.mkdir(parents=True, exist_ok=True)
+    tmp = tema.CONFIG.with_suffix(".tmp")
+    tmp.write_text(json.dumps({"name": name}))
+    os.replace(tmp, tema.CONFIG)  # extensions and Glass Files change now
+    print(f"Theme: {p['label']}")
+
+    subprocess.run([sys.executable, str(HERE / "build.py")], check=True, stdout=subprocess.DEVNULL)
+    reload_gtk()
+    reload_shell_theme()
+    gset("org.gnome.desktop.interface", "accent-color", p["accent"])
+    print("  GTK and shell theme: done")
+    wallpaper(name, p)
+    print("  Wallpaper: done")
+    if zen(p):
+        print("  Zen: done (restart Zen to see it)")
+    if "--no-icons" not in sys.argv:
+        icons_in_background(name)
+        print("  Icons: rebuilding in the background (2–3 minutes), a notification says when")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

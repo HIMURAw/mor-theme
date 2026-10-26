@@ -15,6 +15,8 @@ import re
 import shutil
 from pathlib import Path
 
+from tema import recolor_css  # the chosen colour theme (tema-rengi); violet = unchanged
+
 HOME = Path.home()
 OUT = HOME / ".themes/Mor"
 GTK4 = HOME / ".config/gtk-4.0"
@@ -332,7 +334,7 @@ def shell():
                 t = koyu_menu(kare(t))
                 if f.name == "gnome-shell.css":
                     t += SHELL_EK
-            f.write_text(t)
+            f.write_text(recolor_css(t))
 
 
 def main():
@@ -342,13 +344,13 @@ def main():
         "[Desktop Entry]\nType=X-GNOME-Metatheme\nName=Mor\nComment=Umut'un mor cam teması\n"
         "\n[X-GNOME-Metatheme]\nGtkTheme=Mor\nIconTheme=Mor\n")
     for n in ("gtk.css", "gtk-dark.css"):
-        (OUT / "gtk-3.0" / n).write_text(GTK3_CSS)
-        (OUT / "gtk-4.0" / n).write_text(GTK4_CSS)
+        (OUT / "gtk-3.0" / n).write_text(recolor_css(GTK3_CSS))
+        (OUT / "gtk-4.0" / n).write_text(recolor_css(GTK4_CSS))
     for n in ("gtk.css", "gtk-dark.css"):
         p = GTK4 / n
         if p.is_symlink() or p.exists():
             p.unlink()
-        p.write_text(GTK4_CSS)
+        p.write_text(recolor_css(GTK4_CSS))
     shell()
     print("Mor teması yazıldı:", OUT, GTK4)
 

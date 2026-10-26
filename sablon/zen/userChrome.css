@@ -1,0 +1,85 @@
+/* Dinamik Ada dili (Claude, 2026-10-26). Sine modlarının (Nebula, zen-auto-wallpaper…) üstüne yalnız
+   imza öğeleri: mor vurgu, adanın ince mor cam çerçevesi, aynı köşe yuvarlaklığı. Arka plan duvar
+   kağıdından gelmeye devam eder. Kapatmak için bu dosyayı silip Zen'i yeniden başlat; yedek
+   ~/.cache/zen-yedek-20261026-1050 */
+
+:root {
+  --dynada-violet: #7b5cf0;
+  --dynada-violet-soft: #c9b6ff;
+  --dynada-frame: rgba(168, 132, 255, 0.55);
+  --dynada-frame-quiet: rgba(168, 132, 255, 0.22);
+  --dynada-glass: rgba(27, 22, 44, 0.54);
+
+  --zen-primary-color: var(--dynada-violet) !important;
+  --zen-border-radius: 12px !important;
+}
+
+/* Adres çubuğu: sakinken ince bir çerçeve, odakta adanın parlayan kenarı */
+#urlbar .urlbar-background {
+  border: 1px solid var(--dynada-frame-quiet) !important;
+  border-radius: 12px !important;
+}
+
+#urlbar:is([focused="true"], [breakout-extend]) .urlbar-background {
+  border-color: var(--dynada-frame) !important;
+  box-shadow: 0 0 0 1px rgba(168, 132, 255, 0.18), 0 10px 32px rgba(27, 22, 44, 0.55) !important;
+}
+
+/* Seçili sekme: solda adanın moru, ince bir işaret */
+.tabbrowser-tab[selected] .tab-background {
+  box-shadow: inset 2px 0 0 var(--dynada-violet-soft) !important;
+}
+
+/* Kompakt modda açılan kenar çubuğu: adanın çerçevesi ve gölgesi */
+:root[zen-compact-mode="true"] #navigator-toolbox:is([zen-has-hover], [zen-user-show], [flash-popup]) {
+  outline: 1px solid var(--dynada-frame-quiet);
+  outline-offset: -1px;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(27, 22, 44, 0.45);
+}
+
+/* Bağlam menüleri ve paneller: aynı köşe ve ince çerçeve */
+menupopup,
+panel {
+  --panel-border-radius: 12px !important;
+  --panel-border-color: var(--dynada-frame-quiet) !important;
+}
+
+
+/* ---- v2 (2026-10-26, Umut: "daha fazla şey ekle, daha güzel olsun") ---- */
+
+/* Sekmeler: üstüne gelince hafif mor ışık, yumuşak geçiş */
+.tabbrowser-tab .tab-background {
+  transition: box-shadow 180ms ease, background-color 180ms ease !important;
+}
+.tabbrowser-tab:not([selected]):hover .tab-background {
+  box-shadow: inset 0 0 0 1px var(--dynada-frame-quiet), 0 0 14px rgba(123, 92, 240, 0.18) !important;
+}
+
+/* Essentials / sabitlenmiş sekmeler: seçiliyken adanın çerçevesi */
+.tabbrowser-tab:is([zen-essential], [pinned])[selected] .tab-background {
+  box-shadow: inset 0 0 0 1px var(--dynada-frame), 0 0 18px rgba(123, 92, 240, 0.28) !important;
+}
+
+/* Adres çubuğu önerileri: cam, seçili satır mor */
+.urlbarView-row[selected] {
+  background: linear-gradient(90deg, rgba(123, 92, 240, 0.32), rgba(123, 92, 240, 0.12)) !important;
+  border-radius: 10px !important;
+}
+.urlbarView-row:not([selected]):hover {
+  background: rgba(168, 132, 255, 0.10) !important;
+  border-radius: 10px !important;
+}
+
+/* Çalışma alanı noktaları: aktif olan adanın moru */
+#zen-workspaces-button toolbarbutton[active='true'] .zen-workspace-icon {
+  color: var(--dynada-violet-soft) !important;
+  fill: var(--dynada-violet-soft) !important;
+  fill-opacity: 1 !important;
+  filter: drop-shadow(0 0 4px rgba(168, 132, 255, 0.55));
+}
+
+/* Sayfa yüklenirken sekmedeki gösterge ve vurgulu düğmeler moru alır (--zen-primary-color üzerinden) */
+.tab-throbber[busy] {
+  color: var(--dynada-violet-soft) !important;
+}

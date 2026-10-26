@@ -1,0 +1,12 @@
+/* Bütün sitelerde ince Dinamik Ada dokunuşu (Claude, 2026-10-26): ince mor kaydırma çubuğu ve mor
+   metin seçimi. Sayfaların kendi tasarımına dokunmaz. Sine'ın içerik modları (Nebula) ayrıca yüklenir. */
+
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(168, 132, 255, 0.55) transparent;
+}
+
+::selection {
+  background-color: rgba(123, 92, 240, 0.45);
+  color: inherit;
+}
