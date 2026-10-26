@@ -40,6 +40,86 @@ PALET = {
 }
 P = PALET
 
+# ---------- Pah: adadaki gibi 45° kesik köşe ----------
+# GTK CSS'te maske yok; köşeyi dört çeyrekte "transparent → dolgu" sert geçişli gradyanla
+# kesiyoruz. Çeyrekler ortada üst üste bindiği için dolgu OPAK olmalı (yarı saydam
+# renk ortada çizgi bırakır) — renkler paletin koyu morunun üstüne önceden karıştırıldı.
+# Çerçeveli halde çerçeve katmanı border-box'a, dolgu padding-box'a çizilir; 1 px saydam
+# kenarlık aradaki çizgiyi bırakır. Pencerenin kendi köşesi Glass Windows eklentisinde (shader).
+KOSE = [(135, "left top"), (225, "right top"), (315, "right bottom"), (45, "left bottom")]
+
+
+def pah(fill, cut=4, frame=None):
+    def kat(renk, c):
+        return [f"linear-gradient({a}deg, transparent {c:g}px, {renk} {c:g}px)" for a, _ in KOSE]
+    imgs = kat(fill, cut - 0.41 if frame else cut)
+    poz = [p for _, p in KOSE]
+    css = "background-color: transparent; border-radius: 0; box-shadow: none; "
+    if frame:
+        imgs += kat(frame, cut)
+        css += ("border: 1px solid transparent; "
+                f"background-clip: {', '.join(['padding-box'] * 4 + ['border-box'] * 4)}; "
+                f"background-origin: {', '.join(['padding-box'] * 4 + ['border-box'] * 4)}; ")
+        poz *= 2
+    return (css + f"background-image: {', '.join(imgs)}; background-size: 51% 51%; "
+            f"background-repeat: no-repeat; background-position: {', '.join(poz)};")
+
+
+# Opak dolgular (zemin #161221 / başlık #1b162c üstüne karıştırılmış)
+D = {
+    "btn": "#2a2340", "btn_hover": "#342b50", "btn_active": "#40355f",
+    "accent_hover": "#7d64e0", "accent_active": "#5e46c4",
+    "destr": "#c43a52", "destr_hover": "#d8445e",
+    "entry": "#211b33", "entry_frame": "#2f2747", "entry_focus": "#8a70ec",
+    "card": "#1e192c", "card_frame": "#2a2340",
+    "pop": P["popover_bg"], "pop_frame": "#4a3d74",
+    "sel": "#2b2344", "sel_frame": "#6a56b0", "sel_hover": "#332a50",
+    "grid_hover": "#1d1829",
+    "ctl_hover": "#3a3058",
+}
+
+PAH_CSS = f"""/* Pah: düğme, alan, kart, menü — adadaki 45° kesik */
+button {{ {pah(D['btn'])} }}
+button.flat, headerbar button, .toolbar button, toolbarview > .top button, spinbutton > button,
+.path-bar button, searchbar button, popover button.flat, splitbutton > button,
+splitbutton > menubutton > button, columnview > header button, columnview header > row > button,
+columnview > header > row > button, .column-header {{ {pah("transparent")} }}
+button:hover {{ {pah(D['btn_hover'])} }}
+button:active, button:checked {{ {pah(D['btn_active'])} }}
+button.suggested-action, button.default {{ {pah(P['accent_bg'])} color: {P['accent_fg']}; }}
+button.suggested-action:hover {{ {pah(D['accent_hover'])} }}
+button.suggested-action:active {{ {pah(D['accent_active'])} }}
+button.destructive-action {{ {pah(D['destr'])} color: #ffffff; }}
+button.destructive-action:hover {{ {pah(D['destr_hover'])} }}
+button:disabled {{ opacity: 0.5; }}
+
+entry, searchbar entry, spinbutton, .path-bar-box, .nautilus-path-bar {{ {pah(D['entry'], 4, D['entry_frame'])} outline: none; }}
+entry:focus-within, spinbutton:focus-within {{ {pah(D['entry'], 4, D['entry_focus'])} }}
+
+.card, list.boxed-list, .boxed-list {{ {pah(D['card'], 6, D['card_frame'])} }}
+
+popover > contents, popover.menu > contents {{ {pah(D['pop'], 7, D['pop_frame'])} }}
+popover > arrow {{ background-color: {D['pop']}; border-color: {D['pop_frame']}; }}
+
+.navigation-sidebar > row:selected, placessidebar row:selected {{ {pah(D['sel'], 4, D['sel_frame'])} color: {P['fg']}; }}
+.navigation-sidebar > row:selected:hover {{ {pah(D['sel_hover'], 4, D['sel_frame'])} }}
+
+gridview > child:hover {{ {pah(D['grid_hover'], 5)} }}
+gridview > child:selected, columnview > listview > row:selected {{ {pah(D['sel'], 5, D['sel_frame'])} }}
+gridview > child .thumbnail, .icon-ui-labels-box {{ border-radius: 0; }}
+
+/* Pencere gölgesi; çerçeve çizgisi ve köşe kesiği Glass Windows eklentisinden */
+window.csd {{ box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5); }}
+window.csd:backdrop {{ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }}
+
+/* Pencere düğmeleri: macOS trafik ışığı yok; pahlı, sessiz; kapat üstüne gelince kırmızı */
+windowcontrols button {{ {pah('transparent')} min-width: 28px; min-height: 28px; padding: 0; margin: 0 1px; }}
+windowcontrols button image {{ background: none; box-shadow: none; padding: 5px; border-radius: 0; }}
+windowcontrols button:hover {{ {pah(D['ctl_hover'], 5)} }}
+windowcontrols button.close:hover {{ {pah(P['destructive'], 5)} color: #ffffff; }}
+"""
+
+
 # İmza: kare köşe (Umut adada "radius'suz hali daha güzeldi" dedi, 2026-10-13) ve
 # seçili satırın solunda lavanta çizgi.
 GTK4_CSS = f"""/* Mor — üretildi: ~/.local/src/mor-theme/build.py, elle düzenleme */
@@ -104,33 +184,7 @@ checkbutton check, check, .path-bar-box, .nautilus-path-bar, .path-bar button,
 searchbar > revealer > box entry {{ border-radius: 0; }}
 radio, checkbutton radio, scale slider, button.circular, avatar {{ border-radius: 999px; }}
 
-/* Çerçeve: pencerenin kenarında lavanta çizgi, odakta daha belirgin */
-window.csd {{ box-shadow: 0 0 0 1px {P['line']}, 0 18px 48px rgba(0, 0, 0, 0.5); }}
-window.csd:backdrop {{ box-shadow: 0 0 0 1px rgba(168, 132, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.4); }}
-popover > contents, menu, .menu {{ box-shadow: 0 0 0 1px {P['line']}, 0 10px 30px rgba(0, 0, 0, 0.45); }}
-
-/* Seçili kenar çubuğu satırı: dolgu yerine soldan lavanta çizgi */
-.navigation-sidebar > row:selected, placessidebar row:selected {{
-  background-color: rgba(168, 132, 255, 0.12);
-  box-shadow: inset 2px 0 {P['accent']};
-  color: {P['fg']};
-}}
-.navigation-sidebar > row:selected:hover {{ background-color: rgba(168, 132, 255, 0.18); }}
-
-/* Nautilus dosya ızgarası ve listesi */
-gridview > child:selected, columnview > listview > row:selected {{
-  background-color: rgba(168, 132, 255, 0.16);
-  box-shadow: inset 0 0 0 1px {P['frame']};
-}}
-gridview > child {{ border-radius: 0; }}
-gridview > child .thumbnail, .icon-ui-labels-box {{ border-radius: 0; }}
-
-/* Pencere düğmeleri: macOS trafik ışığı yerine kare, sessiz; kapat üstüne gelince kırmızı */
-windowcontrols button {{ min-width: 26px; min-height: 26px; padding: 0; margin: 0 1px; }}
-windowcontrols button image {{ background: none; box-shadow: none; padding: 4px; border-radius: 0; }}
-windowcontrols button:hover image {{ background-color: rgba(168, 132, 255, 0.18); }}
-windowcontrols button.close:hover image {{ background-color: {P['destructive']}; color: #ffffff; }}
-
+{PAH_CSS}
 /* Odak halkası lavanta */
 *:focus-visible {{ outline-color: {P['frame']}; outline-width: 1px; }}
 """
