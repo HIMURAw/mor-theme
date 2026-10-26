@@ -73,7 +73,10 @@ def zen(p):
 
 def icons_in_background(name):
     LOG.parent.mkdir(parents=True, exist_ok=True)
-    script = (f"python3 '{ICONS}' > '{LOG}' 2>&1 && "
+    # One build at a time (they share the staging folder); a second waits and then builds the
+    # theme chosen last, since build.py reads the palette when it starts.
+    lock = HOME / ".cache/tema-rengi-icons.lock"
+    script = (f"flock '{lock}' python3 '{ICONS}' > '{LOG}' 2>&1 && "
               "gsettings set org.gnome.desktop.interface icon-theme Adwaita && sleep 0.5 && "
               "gsettings set org.gnome.desktop.interface icon-theme Mor && "
               f"notify-send -i preferences-desktop-theme 'Theme' 'Icons are now {tema.THEMES[name]['label'].lower()}.'")
