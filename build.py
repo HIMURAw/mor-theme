@@ -20,7 +20,16 @@ from tema import recolor_css  # the chosen colour theme (tema-rengi); violet = u
 HOME = Path.home()
 OUT = HOME / ".themes/Mor"
 GTK4 = HOME / ".config/gtk-4.0"
-SHELL_SRC = HOME / ".themes/Orchis-Purple-Dark/gnome-shell"
+def _find_theme(name, sub):
+    """A theme installed per user or system-wide (Orchis and adw-gtk3 are dependencies)."""
+    for root in (HOME / ".themes", HOME / ".local/share/themes", Path("/usr/share/themes")):
+        if (root / name / sub).exists():
+            return root / name / sub
+    return HOME / ".local/share/themes" / name / sub
+
+
+SHELL_SRC = _find_theme("Orchis-Purple-Dark", "gnome-shell")
+ADW_GTK3 = _find_theme("adw-gtk3-dark", "gtk-3.0/gtk.css")
 
 # Adanın camı rgba(27,22,44), çerçevesi lavanta rgba(168,132,255), robotun morları.
 PALET = {
@@ -229,7 +238,7 @@ GTK3_COLORS = f"""@define-color accent_bg_color {P['accent_bg']};
 """
 
 GTK3_CSS = f"""/* Mor — üretildi: ~/.local/src/mor-theme/build.py, elle düzenleme */
-@import url("file://{HOME}/.local/share/themes/adw-gtk3-dark/gtk-3.0/gtk.css");
+@import url("file://{ADW_GTK3}");
 {GTK3_COLORS}
 button, entry, spinbutton, combobox button, .linked > *, popover, menu, .menu,
 tooltip, frame, scrollbar slider, switch, switch slider, progressbar trough,

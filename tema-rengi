@@ -23,8 +23,7 @@ import tema  # noqa: E402
 
 HOME = Path.home()
 BACKGROUNDS = HOME / ".local/share/backgrounds"
-ZEN_CHROME = HOME / "zen-profile/chrome"
-ICONS = HOME / ".local/src/mor-icons/build.py"
+ICONS = HERE.parent / "mor-icons/build.py"  # mor-icons is cloned next to mor-theme
 LOG = HOME / ".cache/tema-rengi.log"
 
 
@@ -46,10 +45,14 @@ def reload_shell_theme():
 
 
 def wallpaper(name, p):
-    src = HERE / "sablon/duvar/mor-neon.png"
+    """Your own violet wallpaper in sablon/duvar/ (not in the repo), turned to the theme's hue."""
+    src = next(iter(sorted((HERE / "sablon/duvar").glob("*.png"))), None)
+    if not src:
+        return False
     if name == "mor":
-        out = BACKGROUNDS / "mor-neon.png"
+        out = src
     else:
+        BACKGROUNDS.mkdir(parents=True, exist_ok=True)
         out = BACKGROUNDS / f"tema-{name}.png"
         if not out.exists() or out.stat().st_mtime < src.stat().st_mtime:
             # ImageMagick hue: 100 = unchanged, 200 = +180°.
@@ -60,16 +63,30 @@ def wallpaper(name, p):
     gset("org.gnome.desktop.background", "picture-uri", uri)
     gset("org.gnome.desktop.background", "picture-uri-dark", uri)
     gset("org.gnome.desktop.screensaver", "picture-uri", uri)
+    return True
+
+
+MARK = "Dinamik Ada"  # in the first line of sablon/zen/*.css
+
+
+def zen_chrome_dirs():
+    """Zen profiles that already have a chrome/ folder (make one to opt a profile in)."""
+    roots = [HOME / ".zen", HOME / ".var/app/app.zen_browser.zen/.zen", HOME / "zen-profile"]
+    found = [r / "chrome" for r in roots if (r / "chrome").is_dir()]
+    found += [d for r in roots[:2] for d in r.glob("*/chrome") if d.is_dir()]
+    return list(dict.fromkeys(d.resolve() for d in found))
 
 
 def zen(p):
-    if not ZEN_CHROME.is_dir():
-        return False
-    for f in ("userChrome.css", "userContent.css"):
-        src = HERE / "sablon/zen" / f
-        if src.exists():
-            (ZEN_CHROME / f).write_text(tema.recolor_css(src.read_text(), p))
-    return True
+    dirs = zen_chrome_dirs()
+    for chrome in dirs:
+        for f in ("userChrome.css", "userContent.css"):
+            src = HERE / "sablon/zen" / f
+            dest = chrome / f
+            # never overwrite someone's own userChrome: only ours (marked) or none yet
+            if src.exists() and (not dest.exists() or MARK in dest.read_text(errors="ignore")):
+                dest.write_text(tema.recolor_css(src.read_text(), p))
+    return bool(dirs)
 
 
 def spotify(p):
@@ -124,8 +141,8 @@ def main():
     reload_shell_theme()
     gset("org.gnome.desktop.interface", "accent-color", p["accent"])
     print("  GTK and shell theme: done")
-    wallpaper(name, p)
-    print("  Wallpaper: done")
+    if wallpaper(name, p):
+        print("  Wallpaper: done")
     if zen(p):
         print("  Zen: done (restart Zen to see it)")
     if spotify(p):
