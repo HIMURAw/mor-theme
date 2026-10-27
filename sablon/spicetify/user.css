@@ -1,0 +1,58 @@
+/* Mor: the desktop's own look in Spotify. Square panels with a 45° chamfer (the island's
+   corner), a thin lavender line on panel edges, a 2px lavender bar on the selected sidebar
+   row instead of a fill, and the playing cover's colour washed faintly over the background. */
+:root {
+  --mor-line: rgba(168, 132, 255, .16);
+  --mor-lavender: #b39cff;
+  --cover-tint: rgba(111, 85, 214, .18);
+  --pah: 10px;
+  --pah-s: 6px;
+}
+
+/* chamfer: cut the four corners at 45° */
+.Root__nav-bar, .Root__main-view, .Root__right-sidebar, .Root__now-playing-bar,
+.main-card-card, .main-trackList-trackListRow, .x-searchInput-searchInputInput,
+.main-contextMenu-menu, .main-entityHeader-image, .main-image-image.main-entityHeader-image,
+.encore-dark-theme .main-card-card, [data-encore-id="card"] {
+  border-radius: 0 !important;
+  clip-path: polygon(var(--pah) 0, calc(100% - var(--pah)) 0, 100% var(--pah), 100% calc(100% - var(--pah)),
+                     calc(100% - var(--pah)) 100%, var(--pah) 100%, 0 calc(100% - var(--pah)), 0 var(--pah));
+}
+button[data-encore-id="buttonPrimary"], button[data-encore-id="buttonSecondary"],
+.main-playButton-PlayButton, [data-encore-id="buttonPrimary"] > span, .main-card-imageContainer img,
+.main-card-imageContainer .main-image-image, [data-encore-id="chip"], .x-entityImage-imageContainer {
+  border-radius: 0 !important;
+  clip-path: polygon(var(--pah-s) 0, calc(100% - var(--pah-s)) 0, 100% var(--pah-s), 100% calc(100% - var(--pah-s)),
+                     calc(100% - var(--pah-s)) 100%, var(--pah-s) 100%, 0 calc(100% - var(--pah-s)), 0 var(--pah-s));
+}
+/* artists stay round, like avatars on the desktop */
+.main-avatar-avatar, .main-avatar-avatar img, [data-testid="card-image"].main-avatar-image { clip-path: none !important; border-radius: 50% !important; }
+
+/* panels: lavender hairline on the edge */
+.Root__nav-bar, .Root__main-view, .Root__right-sidebar, .Root__now-playing-bar {
+  box-shadow: inset 0 0 0 1px var(--mor-line) !important;
+}
+
+/* background: violet glass with the cover colour faintly on top */
+body, .Root__top-container {
+  background: radial-gradient(120% 90% at 85% 0%, var(--cover-tint), transparent 60%), var(--spice-main) !important;
+  transition: background 1.2s ease;
+}
+.Root__nav-bar, .Root__right-sidebar { background-color: color-mix(in srgb, var(--spice-sidebar) 88%, transparent) !important; }
+.Root__main-view { background-color: color-mix(in srgb, var(--spice-main) 85%, transparent) !important; }
+
+/* selected row in the library: a 2px lavender bar, no fill */
+.main-yourLibraryX-listItem [aria-current="page"], .main-yourLibraryX-listItem a[aria-current="page"],
+.main-yourLibraryX-listItemGroup [aria-selected="true"] {
+  background: transparent !important;
+  box-shadow: inset 2px 0 0 var(--mor-lavender) !important;
+}
+
+/* progress and volume bars in lavender, square ends */
+.progress-bar { --fg-color: var(--mor-lavender) !important; --bg-color: var(--mor-line) !important; }
+.progress-bar__bg, .progress-bar__fg, .x-progressBar-progressBarBg, .x-progressBar-fillColor { border-radius: 0 !important; }
+
+/* thin violet scrollbars */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: var(--mor-line); }
+::-webkit-scrollbar-thumb:hover { background: rgba(168, 132, 255, .35); }

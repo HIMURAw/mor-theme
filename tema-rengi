@@ -5,11 +5,12 @@
     tema-rengi turkuaz|yesil|mavi|mor|gri
 
 Live at once: Dynamic Island, Glass Dock, Glass Widgets, Glass Windows (they watch the palette),
-Glass Files. Regenerated here: GTK 3/4 + Shell theme, libadwaita accent, wallpaper, Zen (next start).
+Glass Files. Regenerated here: GTK 3/4 + Shell theme, libadwaita accent, wallpaper, Zen and Spotify (next start).
 Icons (~34k) are rebuilt in the background and swapped in when ready (2–3 minutes).
 The Harvis robot keeps its violet in every theme.
 """
 import json
+import re
 import os
 import subprocess
 import sys
@@ -71,6 +72,22 @@ def zen(p):
     return True
 
 
+def spotify(p):
+    """Spicetify theme "Mor" from sablon/spicetify; Spotify picks it up on its next start."""
+    spicetify = HOME / ".spicetify/spicetify"
+    if not spicetify.exists():
+        return False
+    dest = HOME / ".config/spicetify/Themes/Mor"
+    dest.mkdir(parents=True, exist_ok=True)
+    for f in ("color.ini", "user.css", "theme.js"):
+        text = tema.recolor_css((HERE / "sablon/spicetify" / f).read_text(), p)
+        if f == "color.ini":
+            text = re.sub(r"=\s*#", "= ", text)
+        (dest / f).write_text(text)
+    subprocess.run([str(spicetify), "refresh", "-q"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return True
+
+
 def icons_in_background(name):
     LOG.parent.mkdir(parents=True, exist_ok=True)
     # One build at a time (they share the staging folder); a second waits and then builds the
@@ -111,6 +128,8 @@ def main():
     print("  Wallpaper: done")
     if zen(p):
         print("  Zen: done (restart Zen to see it)")
+    if spotify(p):
+        print("  Spotify: done (restart Spotify to see it)")
     if "--no-icons" not in sys.argv:
         icons_in_background(name)
         print("  Icons: rebuilding in the background (2–3 minutes), a notification says when")
