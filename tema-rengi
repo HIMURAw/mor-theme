@@ -12,6 +12,7 @@ The Harvis robot keeps its violet in every theme.
 import json
 import re
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -58,7 +59,7 @@ def wallpaper(name, p):
             # ImageMagick hue: 100 = unchanged, 200 = +180°.
             hue = 100 + ((p["hue"] - tema.BASE_HUE) % 360) * 100 / 180
             sat = 0 if p["sat"] == 0 else 100 * p["sat"]
-            subprocess.run(["magick", str(src), "-modulate", f"100,{sat:.0f},{hue:.1f}", str(out)], check=True)
+            subprocess.run([shutil.which("magick") or "convert", str(src), "-modulate", f"100,{sat:.0f},{hue:.1f}", str(out)], check=True)
     uri = out.as_uri()
     gset("org.gnome.desktop.background", "picture-uri", uri)
     gset("org.gnome.desktop.background", "picture-uri-dark", uri)
