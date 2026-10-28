@@ -2,7 +2,7 @@
 """tema-rengi — switch the whole desktop's colour theme.
 
     tema-rengi                 list the themes, show the current one
-    tema-rengi turkuaz|yesil|mavi|mor|gri
+    tema-rengi turkuaz|yesil|mavi|mor|gri|cam
 
 Live at once: Dynamic Island, Glass Dock, Glass Widgets, Glass Windows (they watch the palette),
 Glass Files. Regenerated here: GTK 3/4 + Shell theme, libadwaita accent, wallpaper, Zen and Spotify (next start).
@@ -45,12 +45,39 @@ def reload_shell_theme():
     subprocess.run(["dconf", "write", "/org/gnome/shell/extensions/user-theme/name", "'Mor'"], check=False)
 
 
+def render_scene(name, out):
+    """Draw sablon/sahne/<name>.html at screen size with any headless Chromium there is."""
+    found = [shutil.which(b) for b in ("chromium", "chromium-browser", "google-chrome", "chrome-headless-shell")]
+    found += sorted(map(str, (HOME / ".cache/ms-playwright").glob("chromium_headless_shell-*/*/chrome-headless-shell")))
+    browser = next((b for b in found if b), None)
+    if not browser:
+        return
+    w, h = 3840, 2400
+    try:
+        mode = subprocess.run(["bash", "-c", "xrandr 2>/dev/null | grep -o '[0-9]*x[0-9]* .*\\*' | head -1"],
+                              capture_output=True, text=True).stdout.split()[0]
+        w, h = map(int, mode.split("x"))
+    except (IndexError, ValueError):
+        pass
+    out.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run([browser, "--headless", "--disable-gpu", "--hide-scrollbars", f"--window-size={w},{h}",
+                    "--virtual-time-budget=2000", f"--screenshot={out}",
+                    (HERE / "sablon/sahne" / f"{name}.html").as_uri()],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60)
+
+
 def wallpaper(name, p):
     """Your own violet wallpaper in sablon/duvar/ (not in the repo), turned to the theme's hue."""
-    src = next(iter(sorted((HERE / "sablon/duvar").glob("*.png"))), None)
-    if not src:
+    own = HERE / "sablon/duvar" / f"{name}.png"  # a theme with its own picture (cam: the dusk lake)
+    if not own.exists() and (HERE / "sablon/sahne" / f"{name}.html").exists():
+        render_scene(name, own)
+    themed = {f"{n}.png" for n in tema.THEMES}
+    src = next(iter(sorted(f for f in (HERE / "sablon/duvar").glob("*.png") if f.name not in themed)), None)
+    if own.exists():
+        out = own
+    elif not src:
         return False
-    if name == "mor":
+    elif name == "mor":
         out = src
     else:
         BACKGROUNDS.mkdir(parents=True, exist_ok=True)

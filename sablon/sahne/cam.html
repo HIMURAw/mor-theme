@@ -1,0 +1,67 @@
+<!doctype html><meta charset="utf-8">
+<!-- The "cam" theme's wallpaper: the dusk lake from the Cam Panel design, drawn at screen size.
+     tema-rengi renders it once to sablon/duvar/cam.png (headless Chromium). -->
+<style>html,body{margin:0;background:#120f24}canvas{display:block}</style>
+<canvas id="scene"></canvas>
+<script>
+const cv = document.getElementById('scene'), ctx = cv.getContext('2d');
+function rnd(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+function ridge(w, base, amp, rough, seed) {
+  const r = rnd(seed), pts = [], n = 64, oct = [];
+  for (let i = 0; i <= n; i++) oct.push(r());
+  for (let i = 0; i <= n; i++) {
+    const x = i / n; let y = 0, f = 1, a = 1;
+    for (let o = 0; o < 4; o++) { const k = (i * f) % n; y += (oct[Math.floor(k)] - .5) * a; f *= 2; a *= rough; }
+    y += Math.sin(x * Math.PI * 1.3 + seed) * .6;
+    pts.push([x * w, base - y * amp]);
+  }
+  return pts;
+}
+function smooth(pts) {
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length - 1; i++) {
+    const xc = (pts[i][0] + pts[i + 1][0]) / 2, yc = (pts[i][1] + pts[i + 1][1]) / 2;
+    ctx.quadraticCurveTo(pts[i][0], pts[i][1], xc, yc);
+  }
+  ctx.lineTo(pts[pts.length - 1][0], pts[pts.length - 1][1]);
+}
+const W = innerWidth, H = innerHeight, S = W / 1440;  // details scale with the screen
+cv.width = W; cv.height = H;
+const hz = H * .6;
+let g = ctx.createLinearGradient(0, 0, 0, hz);
+g.addColorStop(0, '#1d2350'); g.addColorStop(.45, '#5b4b84'); g.addColorStop(.78, '#d88a78'); g.addColorStop(1, '#f6be7e');
+ctx.fillStyle = g; ctx.fillRect(0, 0, W, hz + 2);
+g = ctx.createRadialGradient(W * .62, hz - 10 * S, 0, W * .62, hz - 10 * S, W * .45);
+g.addColorStop(0, 'rgba(255,214,150,.85)'); g.addColorStop(.15, 'rgba(255,190,130,.35)'); g.addColorStop(1, 'rgba(255,170,120,0)');
+ctx.fillStyle = g; ctx.fillRect(0, 0, W, hz + 2);
+const r = rnd(7);
+for (let i = 0; i < 140; i++) { ctx.fillStyle = `rgba(255,255,255,${.15 + r() * .5})`; ctx.fillRect(r() * W, r() * hz * .4, 1.4 * S, 1.4 * S); }
+[{ base: hz - 30 * S, amp: H * .1, c: '#8a6f9c', seed: 3, rough: .55 },
+ { base: hz - 8 * S, amp: H * .085, c: '#5e4b7a', seed: 11, rough: .6 },
+ { base: hz + 10 * S, amp: H * .07, c: '#3b2f58', seed: 29, rough: .62 }].forEach(L => {
+  ctx.beginPath(); smooth(ridge(W, L.base, L.amp, L.rough, L.seed));
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  const lg = ctx.createLinearGradient(0, L.base - L.amp, 0, L.base + 40 * S);
+  lg.addColorStop(0, L.c); lg.addColorStop(1, '#2a2142');
+  ctx.fillStyle = lg; ctx.fill();
+});
+const lakeTop = hz + 22 * S;
+g = ctx.createLinearGradient(0, lakeTop, 0, H);
+g.addColorStop(0, '#c98a7a'); g.addColorStop(.25, '#5a4775'); g.addColorStop(1, '#1b1630');
+ctx.fillStyle = g; ctx.fillRect(0, lakeTop, W, H - lakeTop);
+for (let i = 0; i < 40; i++) {
+  const y = lakeTop + (4 + i * 4) * S, w = (W * .18) * (1 - i / 45) * (.6 + r() * .6);
+  ctx.fillStyle = `rgba(255,205,150,${.35 * (1 - i / 40)})`;
+  ctx.fillRect(W * .62 - w / 2 + (r() - .5) * 20 * S, y, w, 1.2 * S);
+}
+ctx.beginPath(); smooth(ridge(W, H * .8, H * .03, .5, 41)); ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+ctx.fillStyle = '#171227'; ctx.fill();
+// no window mullions here: on a desktop they would cut behind every window; the shade stays
+g = ctx.createLinearGradient(0, 0, 0, H);
+g.addColorStop(0, 'rgba(12,10,24,.45)'); g.addColorStop(.25, 'rgba(12,10,24,0)'); g.addColorStop(.85, 'rgba(12,10,24,0)'); g.addColorStop(1, 'rgba(12,10,24,.55)');
+ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+g = ctx.createRadialGradient(0, H, 0, 0, H, W * .6);
+g.addColorStop(0, 'rgba(240,168,104,.18)'); g.addColorStop(1, 'rgba(240,168,104,0)');
+ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+document.title = 'ready';
+</script>
