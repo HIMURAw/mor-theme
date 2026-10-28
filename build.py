@@ -511,6 +511,24 @@ SHELL_CAM = f"""
 .quick-toggle-menu .header .subtitle {{ color: {C['ink']} !important; }}
 .slider {{ -barlevel-active-background-color: {C['accent']}; -barlevel-background-color: rgba(255, 255, 255, 0.16); }}
 .modal-dialog .modal-dialog-button, .button {{ border-radius: 999px; }}
+/* Orchis paints the dialog's inner boxes grey (#232935): a square, lighter box inside the frost. */
+.modal-dialog {{ background-color: rgba(22, 19, 40, 0.97) !important; }}
+.modal-dialog .modal-dialog-content-box, .prompt-dialog .modal-dialog-content-box,
+.run-dialog .modal-dialog-content-box, .message-dialog-content, .modal-dialog .modal-dialog-button-box {{
+  background-color: transparent !important; }}
+.message-dialog-content .message-dialog-title {{ color: {C['ink']} !important; background-color: transparent !important; }}
+.message-dialog-content .message-dialog-description {{ color: {C['ink2']} !important; }}
+.modal-dialog .modal-dialog-button {{
+  background-color: {C['fill']} !important; color: {C['ink']} !important; border: 1px solid {C['line']} !important; }}
+.modal-dialog .modal-dialog-button:hover, .modal-dialog .modal-dialog-button:focus {{
+  background-color: {C['sel']} !important; }}
+.prompt-dialog .modal-dialog-button:last-child, .end-session-dialog .modal-dialog-button:last-child {{
+  background-color: {C['accent']} !important; color: {C['accent_fg']} !important; border: none !important; }}
+.prompt-dialog .modal-dialog-button:last-child:insensitive {{ background-color: {C['fill']} !important; color: {C['ink3']} !important; }}
+.prompt-dialog-password-entry, .modal-dialog StEntry {{
+  background-color: rgba(255, 255, 255, 0.07) !important; color: {C['ink']} !important;
+  border: 1px solid {C['line_hi']} !important; border-radius: 999px !important; }}
+.prompt-dialog-password-entry:focus, .modal-dialog StEntry:focus {{ border: 2px solid {C['accent']} !important; }}
 .app-well-app:focus .overview-icon, .grid-search-result:focus .overview-icon {{ border: 2px solid {C['accent']}; }}
 """
 
