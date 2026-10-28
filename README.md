@@ -14,7 +14,7 @@ whole set with one command.
 
 ```bash
 tema-rengi              # list the themes
-tema-rengi turkuaz      # turquoise | yesil (green) | mavi (blue) | mor (violet) | gri (grey) | cam (glass: dusk lake wallpaper, soft blue)
+tema-rengi turkuaz      # turquoise | yesil (green) | mavi (blue) | mor (violet) | gri (grey) | cam (glass: dusk lake wallpaper, rounded white frost instead of chamfers)
 ```
 
 It rebuilds the GTK and Shell theme, sets the libadwaita accent, tints your wallpaper, the
