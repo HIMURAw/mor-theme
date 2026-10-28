@@ -97,6 +97,14 @@ def wallpaper(name, p):
 MARK = "Dinamik Ada"  # in the first line of sablon/zen/*.css
 
 
+def theme_extra(part, f, p):
+    """A theme's own additions to sablon/<part>/<f>, from sablon/<part>/<theme>.<f> (e.g.
+    sablon/zen/cam.userChrome.css): shape and glass that recolouring can't express. Appended
+    after the recoloured template as is, so it wins on equal specificity; "" if the theme has none."""
+    extra = HERE / "sablon" / part / f"{p['name']}.{f}"
+    return "\n\n" + extra.read_text() if extra.exists() else ""
+
+
 def zen_chrome_dirs():
     """Zen profiles that already have a chrome/ folder (make one to opt a profile in)."""
     roots = [HOME / ".zen", HOME / ".var/app/app.zen_browser.zen/.zen", HOME / "zen-profile"]
@@ -113,7 +121,7 @@ def zen(p):
             dest = chrome / f
             # never overwrite someone's own userChrome: only ours (marked) or none yet
             if src.exists() and (not dest.exists() or MARK in dest.read_text(errors="ignore")):
-                dest.write_text(tema.recolor_css(src.read_text(), p))
+                dest.write_text(tema.recolor_css(src.read_text(), p) + theme_extra("zen", f, p))
     return bool(dirs)
 
 
@@ -125,7 +133,7 @@ def spotify(p):
     dest = HOME / ".config/spicetify/Themes/Mor"
     dest.mkdir(parents=True, exist_ok=True)
     for f in ("color.ini", "user.css", "theme.js"):
-        text = tema.recolor_css((HERE / "sablon/spicetify" / f).read_text(), p)
+        text = tema.recolor_css((HERE / "sablon/spicetify" / f).read_text(), p) + theme_extra("spicetify", f, p)
         if f == "color.ini":
             text = re.sub(r"=\s*#", "= ", text)
         (dest / f).write_text(text)

@@ -1,0 +1,141 @@
+
+/* ---- Cam (Glass) theme: shape and glass of the "Cam Panel" design. tema-rengi appends this file
+   only for the cam theme, after the recoloured template above, so it wins over the violet rules:
+   rounded corners instead of the island's frame, pill tabs and buttons, white frost panels. ---- */
+
+:root {
+  --cam-ink: #f4f1ff;
+  --cam-ink-2: rgba(244, 241, 255, .66);
+  --cam-ink-3: rgba(244, 241, 255, .42);
+  --cam-glass: linear-gradient(160deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, .085) 40%);
+  --cam-line: rgba(255, 255, 255, .17);
+  --cam-hilite: inset 0 1px 0 rgba(255, 255, 255, .18);
+  --cam-shadow: 0 20px 50px -20px rgba(10, 8, 30, .35);
+  --cam-blur: blur(26px) saturate(160%);
+  --cam-night: rgba(26, 23, 48, .92);  /* opaque fallback over anything bright */
+  --cam-accent: #8fb4ff;
+  --cam-ease: cubic-bezier(.2, .8, .2, 1);
+
+  --dynada-violet: var(--cam-accent);
+  --dynada-violet-soft: var(--cam-accent);
+  --dynada-frame: var(--cam-line);
+  --dynada-frame-quiet: var(--cam-line);
+  --zen-primary-color: var(--cam-accent) !important;
+  --zen-border-radius: 14px !important;
+  --toolbarbutton-border-radius: 999px !important;
+  --tab-border-radius: 999px !important;
+}
+
+/* Compact mode: the sidebar that slides in from the left is a frosted glass panel. The dark
+   tint under the frost keeps white text readable over bright pages. */
+:root[zen-compact-mode="true"] #navigator-toolbox :is(#zen-toolbar-background, .zen-browser-generic-background) {
+  background: var(--cam-glass), rgba(26, 23, 48, .74) !important;
+  backdrop-filter: var(--cam-blur) !important;
+  border: 1px solid var(--cam-line) !important;
+  border-radius: 22px !important;
+  box-shadow: var(--cam-hilite), var(--cam-shadow) !important;
+}
+:root[zen-compact-mode="true"] #navigator-toolbox :is(#zen-toolbar-background, .zen-browser-generic-background)::before,
+:root[zen-compact-mode="true"] #navigator-toolbox :is(#zen-toolbar-background, .zen-browser-generic-background)::after {
+  background: transparent !important;
+}
+:root[zen-compact-mode="true"] #navigator-toolbox:is([zen-has-hover], [zen-user-show], [flash-popup]) {
+  outline: none;
+  border-radius: 22px;
+  box-shadow: none;
+}
+
+/* Address bar: a pill at rest, a 22px glass card when the results open */
+#urlbar .urlbar-background {
+  border: 1px solid var(--cam-line) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, .10) !important;
+  box-shadow: var(--cam-hilite) !important;
+}
+#urlbar:is([focused="true"], [breakout-extend]) .urlbar-background {
+  border-color: var(--cam-line) !important;
+  box-shadow: var(--cam-hilite), 0 0 0 2px rgba(143, 180, 255, .55), var(--cam-shadow) !important;
+}
+#urlbar[breakout-extend] .urlbar-background {
+  border-radius: 22px !important;
+  background: var(--cam-glass), var(--cam-night) !important;
+  backdrop-filter: var(--cam-blur) !important;
+}
+.urlbarView-row[selected] {
+  background: rgba(255, 255, 255, .16) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2) !important;
+  border-radius: 14px !important;
+}
+.urlbarView-row:not([selected]):hover {
+  background: rgba(255, 255, 255, .10) !important;
+  border-radius: 14px !important;
+}
+.urlbarView-action, .urlbarView-url { color: var(--cam-accent) !important; }
+
+/* Tabs: pills; the selected one a white .16 pill with a top highlight, hover a white .10 fill */
+.tabbrowser-tab .tab-background {
+  border-radius: 999px !important;
+  transition: background-color .35s var(--cam-ease), box-shadow .35s var(--cam-ease) !important;
+}
+.tabbrowser-tab:not([selected]):hover .tab-background {
+  background: rgba(255, 255, 255, .10) !important;
+  box-shadow: none !important;
+}
+.tabbrowser-tab[selected] .tab-background,
+.tabbrowser-tab:is([zen-essential], [pinned])[selected] .tab-background {
+  background: rgba(255, 255, 255, .16) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2) !important;
+}
+.tabbrowser-tab[selected] .tab-label { color: var(--cam-ink) !important; }
+/* essentials are square tiles: medium rounding, not pills */
+.tabbrowser-tab[zen-essential] .tab-background { border-radius: 14px !important; }
+.tab-throbber[busy] { color: var(--cam-accent) !important; }
+
+/* Toolbar buttons: circles/pills with the same hover fill */
+toolbarbutton:not(.tabbrowser-tab) > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack, .toolbarbutton-text) {
+  border-radius: 999px !important;
+}
+toolbarbutton:not([disabled]):hover > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  background-color: rgba(255, 255, 255, .10) !important;
+}
+toolbarbutton:is([open], [checked]) > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  background-color: rgba(255, 255, 255, .16) !important;
+}
+
+/* Workspace dots: the active one in ink */
+#zen-workspaces-button toolbarbutton[active='true'] .zen-workspace-icon {
+  color: var(--cam-ink) !important;
+  fill: var(--cam-ink) !important;
+  filter: none;
+}
+
+/* Menus and panels: popups can't blur what's behind them, so the dark night glass; 14px menus,
+   22px panels, pill-ish rows */
+menupopup, panel {
+  --panel-background: var(--cam-night) !important;
+  --panel-color: var(--cam-ink) !important;
+  --panel-border-color: var(--cam-line) !important;
+  --panel-border-radius: 14px !important;
+  --panel-shadow: var(--cam-shadow) !important;
+  --arrowpanel-background: var(--cam-night) !important;
+  --arrowpanel-color: var(--cam-ink) !important;
+  --arrowpanel-border-color: var(--cam-line) !important;
+  --arrowpanel-border-radius: 22px !important;
+  --menuitem-border-radius: 10px !important;
+  --button-hover-bgcolor: rgba(255, 255, 255, .10) !important;
+  --button-active-bgcolor: rgba(255, 255, 255, .16) !important;
+}
+menupopup menuitem:is([_moz-menuactive], :hover),
+menupopup menu:is([_moz-menuactive], :hover) {
+  background-color: rgba(255, 255, 255, .10) !important;
+  border-radius: 10px !important;
+}
+panel .subviewbutton:not([disabled]):hover { background-color: rgba(255, 255, 255, .10) !important; border-radius: 10px !important; }
+
+/* Primary buttons and focus ring in the accent */
+button.primary, .panel-footer > button[default], #editBookmarkPanelDoneButton {
+  background-color: var(--cam-accent) !important;
+  color: #101a33 !important;
+  border-radius: 999px !important;
+}
+:focus-visible { outline-color: var(--cam-accent) !important; }

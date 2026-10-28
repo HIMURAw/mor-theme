@@ -1,0 +1,54 @@
+
+/* ---- Cam (Glass) theme, appended by tema-rengi only for cam: white glass scrollbar, accent
+   selection, and Zen/Firefox's own pages (new tab, settings, add-ons…) with pill buttons,
+   rounded cards and the #8fb4ff accent. Websites keep their own design. ---- */
+
+:root {
+  scrollbar-color: rgba(255, 255, 255, .28) transparent;
+}
+::selection {
+  background-color: rgba(143, 180, 255, .38);
+}
+
+@-moz-document url-prefix("about:"), url-prefix("chrome://browser/content/") {
+  :root {
+    --color-accent-primary: #8fb4ff !important;
+    --color-accent-primary-hover: #a6c4ff !important;
+    --color-accent-primary-active: #bcd2ff !important;
+    --button-text-color-primary: #101a33 !important;
+    --in-content-primary-button-background: #8fb4ff !important;
+    --in-content-primary-button-background-hover: #a6c4ff !important;
+    --in-content-primary-button-background-active: #bcd2ff !important;
+    --in-content-primary-button-text-color: #101a33 !important;
+    --in-content-focus-outline-color: #8fb4ff !important;
+    --focus-outline-color: #8fb4ff !important;
+    --button-border-radius: 999px !important;
+    --border-radius-small: 10px !important;
+    --border-radius-medium: 14px !important;
+    --border-radius-large: 22px !important;
+    --card-border-color: rgba(255, 255, 255, .17) !important;
+  }
+  button, moz-button, .button, select, menulist, input[type="text"], input[type="search"],
+  search-textbox, .search-wrapper .search-inner-wrapper {
+    border-radius: 999px !important;
+  }
+  .card, moz-card, .addon.card, .sticky-container, dialog, .dialogBox {
+    border-radius: 22px !important;
+    border: 1px solid rgba(255, 255, 255, .17) !important;
+  }
+  .category[selected], .category:hover, richlistitem[selected] {
+    border-radius: 999px !important;
+  }
+  .category[selected] {
+    background-color: rgba(255, 255, 255, .16) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2) !important;
+    color: #f4f1ff !important;
+  }
+  /* new tab / home: shortcut tiles and the search box as glass */
+  .top-site-outer .tile, .search-wrapper .search-handoff-button, .search-wrapper input {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, .085) 40%) !important;
+    border: 1px solid rgba(255, 255, 255, .17) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18) !important;
+  }
+  .top-site-outer .tile { border-radius: 14px !important; }
+}

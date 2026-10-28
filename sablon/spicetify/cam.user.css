@@ -1,0 +1,120 @@
+
+/* ---- Cam (Glass): the "Cam Panel" look. tema-rengi appends this only for the cam theme, after the
+   violet rules above, and it undoes their chamfers: rounded corners (22px panels, 14px cards and
+   rows, pill buttons and chips, round play button and avatars), white frost panels over a dusk
+   gradient, ink #f4f1ff, accent #8fb4ff, the selected row a white .16 pill. ---- */
+:root {
+  --cam-ink: #f4f1ff;
+  --cam-glass: linear-gradient(160deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, .085) 40%);
+  --cam-line: rgba(255, 255, 255, .17);
+  --cam-hilite: inset 0 1px 0 rgba(255, 255, 255, .18);
+  --cam-shadow: 0 20px 50px -20px rgba(10, 8, 30, .35);
+  --cam-blur: blur(26px) saturate(160%);
+  --cam-accent: #8fb4ff;
+  --cam-ease: cubic-bezier(.2, .8, .2, 1);
+  --mor-line: var(--cam-line);
+  --mor-lavender: var(--cam-accent);
+
+  --spice-text: #f4f1ff;
+  --spice-rgb-text: 244, 241, 255;
+  --spice-subtext: #b4b0c8;
+  --spice-rgb-subtext: 180, 176, 200;
+  --spice-button: #8fb4ff;
+  --spice-rgb-button: 143, 180, 255;
+  --spice-button-active: #a6c4ff;
+  --spice-rgb-button-active: 166, 196, 255;
+  --spice-play-button: #8fb4ff;
+  --spice-selected-row: #f4f1ff;
+  --spice-rgb-selected-row: 244, 241, 255;
+  --spice-nav-active: rgba(255, 255, 255, .16);
+  --spice-nav-active-text: #f4f1ff;
+  --spice-misc: #b4b0c8;
+}
+
+/* the dusk scene behind the glass; the playing cover's colour still washes in from the top right */
+body, .Root__top-container {
+  background:
+    radial-gradient(120% 90% at 85% 0%, var(--cover-tint), transparent 60%),
+    radial-gradient(90% 60% at 50% 105%, rgba(240, 168, 104, .32), transparent 70%),
+    linear-gradient(180deg, #17142e 0%, #2b2450 45%, #463461 78%, #2a2042 100%) !important;
+}
+
+/* panels: white frost, rounded, no chamfer */
+.Root__nav-bar, .Root__main-view, .Root__right-sidebar, .Root__now-playing-bar {
+  clip-path: none !important;
+  border-radius: 22px !important;
+  background: var(--cam-glass) !important;
+  backdrop-filter: var(--cam-blur);
+  border: 1px solid var(--cam-line);
+  box-shadow: var(--cam-hilite), var(--cam-shadow) !important;
+  overflow: hidden;
+}
+.Root__nav-bar > *, .Root__main-view > *, .Root__right-sidebar > * { background-color: transparent !important; }
+
+/* cards, rows, inputs, menus: rounded, not cut */
+.main-card-card, .main-trackList-trackListRow, .x-searchInput-searchInputInput,
+.main-contextMenu-menu, .main-entityHeader-image, .main-image-image.main-entityHeader-image,
+.encore-dark-theme .main-card-card, [data-encore-id="card"],
+button[data-encore-id="buttonPrimary"], button[data-encore-id="buttonSecondary"],
+.main-playButton-PlayButton, [data-encore-id="buttonPrimary"] > span, .main-card-imageContainer img,
+.main-card-imageContainer .main-image-image, [data-encore-id="chip"], .x-entityImage-imageContainer {
+  clip-path: none !important;
+}
+.main-card-card, [data-encore-id="card"], .encore-dark-theme .main-card-card, .main-trackList-trackListRow,
+.view-homeShortcutsGrid-shortcut {
+  border-radius: 14px !important;
+  transition: background-color .35s var(--cam-ease), transform .35s var(--cam-ease) !important;
+}
+.main-card-card:hover, [data-encore-id="card"]:hover { background: rgba(255, 255, 255, .10) !important; transform: translateY(-5px); }
+.main-trackList-trackListRow:hover { background: rgba(255, 255, 255, .10) !important; }
+.main-trackList-trackListRow[aria-selected="true"], .main-trackList-selected { background: rgba(255, 255, 255, .16) !important; }
+.main-card-imageContainer img, .main-card-imageContainer .main-image-image, .main-entityHeader-image,
+.main-image-image.main-entityHeader-image, .x-entityImage-imageContainer { border-radius: 10px !important; }
+.x-searchInput-searchInputInput, [data-encore-id="chip"], [data-encore-id="buttonSecondary"],
+[data-encore-id="buttonPrimary"], [data-encore-id="buttonPrimary"] > span, [role="search"] input {
+  border-radius: 999px !important;
+}
+.x-searchInput-searchInputInput, [role="search"] input {
+  background: rgba(255, 255, 255, .10) !important;
+  border: 1px solid var(--cam-line) !important;
+  box-shadow: var(--cam-hilite) !important;
+  color: var(--cam-ink) !important;
+}
+.main-playButton-PlayButton, .main-playButton-PlayButton > span, [data-testid="play-button"] > span,
+.main-avatar-avatar, .main-avatar-avatar img, [data-testid="card-image"].main-avatar-image { border-radius: 50% !important; }
+[data-testid="play-button"] > span, .main-playButton-PlayButton > span, [data-encore-id="buttonPrimary"] > span {
+  background-color: var(--cam-accent) !important;
+  color: #101a33 !important;
+}
+[data-encore-id="chip"][aria-checked="true"], [data-encore-id="chip"][aria-selected="true"] {
+  background: #f4f1ff !important;
+  color: #120f24 !important;
+}
+
+/* context menus and popovers can't blur past the window edge: night glass */
+.main-contextMenu-menu, [data-tippy-root] > div {
+  border-radius: 14px !important;
+  background: var(--cam-glass), rgba(26, 23, 48, .92) !important;
+  border: 1px solid var(--cam-line) !important;
+  box-shadow: var(--cam-hilite), var(--cam-shadow) !important;
+}
+.main-contextMenu-menuItemButton { border-radius: 10px !important; }
+.main-contextMenu-menuItemButton:hover { background: rgba(255, 255, 255, .10) !important; }
+
+/* selected library row: a white .16 pill, not the lavender bar */
+.main-yourLibraryX-listItem [aria-current="page"], .main-yourLibraryX-listItem a[aria-current="page"],
+.main-yourLibraryX-listItemGroup [aria-selected="true"], .main-yourLibraryX-listItem[aria-selected="true"] {
+  background: rgba(255, 255, 255, .16) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2) !important;
+  border-radius: 999px !important;
+}
+.main-yourLibraryX-listItem [role="button"]:hover, .main-yourLibraryX-listItem a:hover { border-radius: 999px !important; }
+
+/* progress and volume: accent, round ends */
+.progress-bar { --fg-color: var(--cam-accent) !important; --bg-color: rgba(255, 255, 255, .17) !important; }
+.progress-bar__bg, .progress-bar__fg, .x-progressBar-progressBarBg, .x-progressBar-fillColor { border-radius: 999px !important; }
+
+/* scrollbars: white glass */
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .22); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, .35); }
+:focus-visible { outline: 2px solid var(--cam-accent) !important; outline-offset: 2px; }
