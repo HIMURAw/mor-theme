@@ -118,3 +118,99 @@ button[data-encore-id="buttonPrimary"], button[data-encore-id="buttonSecondary"]
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .22); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, .35); }
 :focus-visible { outline: 2px solid var(--cam-accent) !important; outline-offset: 2px; }
+
+/* ---- Cam, clear glass (2026-10-30): Apple Music style. Behind everything the playing cover,
+   blown up and blurred, slowly drifting (cam.theme.js builds #cam-backdrop); the panels become
+   nearly clear glass with a strong blur, a specular top edge and a soft inner glow, so the
+   cover's colours show through. ---- */
+:root {
+  --cam-glass: linear-gradient(165deg, rgba(255, 255, 255, .13), rgba(255, 255, 255, .04) 45%, rgba(255, 255, 255, .07));
+  --cam-blur: blur(44px) saturate(190%) brightness(1.05);
+  --cam-line: rgba(255, 255, 255, .20);
+  --cam-hilite: inset 0 1px 0 rgba(255, 255, 255, .38), inset 0 0 0 1px rgba(255, 255, 255, .05), inset 0 -18px 40px -30px rgba(255, 255, 255, .25);
+  --cam-shadow: 0 24px 60px -24px rgba(0, 0, 0, .55);
+}
+#cam-backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: #161329; }
+#cam-backdrop .cam-art {
+  position: absolute; inset: -30%;
+  background-size: cover; background-position: center;
+  filter: blur(90px) saturate(170%) brightness(.85);
+  opacity: 0; transition: opacity 1.6s var(--cam-ease);
+  animation: cam-drift 46s ease-in-out infinite alternate;
+}
+#cam-backdrop .cam-art:nth-child(2) { animation-duration: 58s; animation-direction: alternate-reverse; }
+#cam-backdrop .cam-art.on { opacity: 1; }
+#cam-backdrop .cam-veil {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(255, 255, 255, .06), transparent 60%),
+    linear-gradient(180deg, rgba(10, 8, 24, .10), rgba(10, 8, 24, .45));
+}
+@keyframes cam-drift {
+  0%   { transform: scale(1.0) rotate(0deg) translate(0, 0); }
+  50%  { transform: scale(1.18) rotate(8deg) translate(3%, -2%); }
+  100% { transform: scale(1.08) rotate(-6deg) translate(-3%, 3%); }
+}
+body, .Root__top-container, .Root { background: transparent !important; }
+.Root__top-container { position: relative; z-index: 1; }
+
+/* the panels: clear glass, the backdrop does the colour */
+.Root__nav-bar, .Root__main-view, .Root__right-sidebar, .Root__now-playing-bar, .Root__globalNav {
+  background: var(--cam-glass) !important;
+  backdrop-filter: var(--cam-blur) !important;
+  border: 1px solid var(--cam-line) !important;
+  border-top-color: rgba(255, 255, 255, .34) !important;
+  box-shadow: var(--cam-hilite), var(--cam-shadow) !important;
+}
+.Root__globalNav { border: none !important; box-shadow: none !important; background: transparent !important; backdrop-filter: none !important; }
+
+/* Spotify paints its own opaque layers inside the panels: clear them so the glass shows */
+.main-yourLibraryX-libraryContainer, .YourLibraryX, .main-yourLibraryX-header, .main-yourLibraryX-entryPoints,
+.main-view-container, .main-view-container__scroll-node, .main-view-container__scroll-node-child,
+.main-view-container__scroll-node-child-spacer, .os-viewport, .main-yourLibraryX-library,
+.main-yourLibraryX-libraryRootlist, .main-nowPlayingView-section, .main-buddyFeed-container,
+.main-topBar-background, .main-entityHeader-backgroundColor, .main-actionBarBackground-background,
+.main-home-homeHeader, .main-nowPlayingBar-nowPlayingBar, .main-nowPlayingBar-container,
+.main-trackList-trackList, .contentSpacing, section[data-testid] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+.main-entityHeader-overlay, .main-entityHeader-backgroundColor { opacity: 0 !important; }
+.main-topBar-background { backdrop-filter: blur(20px) saturate(160%); background: rgba(255, 255, 255, .04) !important; }
+
+/* the playing bar: a floating glass pill-ish bar */
+.Root__now-playing-bar { border-radius: 26px !important; margin: 0 8px 8px !important; }
+
+/* cards: glassy tiles that lift and catch light on hover */
+.main-card-card, [data-encore-id="card"] { background: rgba(255, 255, 255, .04) !important; }
+.main-card-card:hover, [data-encore-id="card"]:hover {
+  background: rgba(255, 255, 255, .12) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 18px 40px -18px rgba(0, 0, 0, .55) !important;
+  transform: translateY(-6px) scale(1.015);
+}
+.main-card-imageContainer img, .main-card-imageContainer .main-image-image {
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, .6) !important;
+}
+.view-homeShortcutsGrid-shortcut { background: rgba(255, 255, 255, .08) !important; backdrop-filter: blur(20px); }
+.view-homeShortcutsGrid-shortcut:hover { background: rgba(255, 255, 255, .16) !important; }
+
+/* buttons press like glass */
+button { transition: transform .25s var(--cam-ease), background-color .25s var(--cam-ease) !important; }
+button:active { transform: scale(.94); }
+[data-testid="play-button"] > span, .main-playButton-PlayButton > span {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 10px 26px -8px rgba(143, 180, 255, .7) !important;
+}
+
+/* menus: thicker glass since they float over everything */
+.main-contextMenu-menu, [data-tippy-root] > div {
+  background: rgba(30, 26, 52, .72) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+}
+
+/* the now playing canvas video: a dark scrim under the title so text stays readable over bright art */
+.main-nowPlayingView-coverArtContainer::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(180deg, rgba(12, 10, 26, .55) 0%, transparent 18%, transparent 50%, rgba(12, 10, 26, .85) 100%);
+}
+.main-nowPlayingView-contextItemInfo, .main-nowPlayingView-panel > :first-child { position: relative; z-index: 2; text-shadow: 0 1px 12px rgba(0, 0, 0, .5); }
