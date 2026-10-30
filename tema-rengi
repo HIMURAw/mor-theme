@@ -121,6 +121,10 @@ def zen(p):
             # never overwrite someone's own userChrome: only ours (marked) or none yet
             if src.exists() and (not dest.exists() or MARK in dest.read_text(errors="ignore")):
                 dest.write_text(tema.recolor_css(src.read_text(), p) + theme_extra("zen", f, p))
+        # a theme's backdrop image (cam: the wallpaper, pre-blurred), read by its userChrome as url()
+        art = HERE / "sablon/zen" / f"{p['name']}.backdrop.jpg"
+        if art.exists():
+            shutil.copyfile(art, chrome / "tema-backdrop.jpg")
     return bool(dirs)
 
 

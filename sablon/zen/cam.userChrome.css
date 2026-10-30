@@ -139,3 +139,71 @@ button.primary, .panel-footer > button[default], #editBookmarkPanelDoneButton {
   border-radius: 999px !important;
 }
 :focus-visible { outline-color: var(--cam-accent) !important; }
+
+/* ---- Cam, clear glass (2026-10-30): the same effect as Spotify. Behind the whole window the
+   wallpaper (pre-blurred, tema-backdrop.jpg) slowly drifts; the page floats on it as a rounded,
+   lifted card; the sliding sidebar and the open address bar are nearly clear glass with a strong
+   blur and a bright top edge. ---- */
+:root {
+  --cam-glass: linear-gradient(165deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .04) 45%, rgba(255, 255, 255, .07));
+  --cam-blur: blur(40px) saturate(190%) brightness(1.04);
+  --cam-line: rgba(255, 255, 255, .20);
+  --cam-hilite: inset 0 1px 0 rgba(255, 255, 255, .38), inset 0 0 0 1px rgba(255, 255, 255, .05);
+  --cam-shadow: 0 24px 60px -22px rgba(0, 0, 0, .6);
+  --zen-element-separation: 10px !important;
+}
+
+/* the living backdrop */
+#zen-main-app-wrapper { position: relative; isolation: isolate; overflow: hidden; background: #161329 !important; }
+#zen-main-app-wrapper::before {
+  content: ""; position: absolute; inset: -25%; z-index: -1; pointer-events: none;
+  background: url("tema-backdrop.jpg") center / cover no-repeat;
+  filter: blur(30px) saturate(140%) brightness(.9);
+  animation: cam-drift 50s ease-in-out infinite alternate;
+}
+#zen-main-app-wrapper::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(120% 80% at 50% 0%, rgba(255, 255, 255, .06), transparent 60%),
+              linear-gradient(180deg, rgba(10, 8, 24, .05), rgba(10, 8, 24, .35));
+}
+@keyframes cam-drift {
+  0%   { transform: scale(1) rotate(0deg) translate(0, 0); }
+  50%  { transform: scale(1.15) rotate(5deg) translate(3%, -2%); }
+  100% { transform: scale(1.07) rotate(-4deg) translate(-3%, 2%); }
+}
+#browser, #zen-appcontent-wrapper, #tabbrowser-tabbox, #tabbrowser-tabpanels { background: transparent !important; }
+/* Zen's own window gradient layer sits on top of the wrapper: clear it so the backdrop shows */
+#zen-browser-background, #zen-browser-background::before, #zen-browser-background::after { background: transparent !important; opacity: 0 !important; }
+
+/* the page: a floating card with a glass rim */
+.browserSidebarContainer, #tabbrowser-tabpanels > .browserSidebarContainer {
+  border-radius: 14px !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .16), 0 22px 50px -18px rgba(0, 0, 0, .65) !important;
+}
+.browserContainer, .browserStack, .browserStack > browser { border-radius: 14px !important; }
+
+/* sidebar: clear glass, the page shows through it */
+:root[zen-compact-mode="true"] #navigator-toolbox :is(#zen-toolbar-background, .zen-browser-generic-background) {
+  background: var(--cam-glass), rgba(22, 19, 42, .42) !important;
+  backdrop-filter: var(--cam-blur) !important;
+  border: 1px solid var(--cam-line) !important;
+  border-top-color: rgba(255, 255, 255, .34) !important;
+  box-shadow: var(--cam-hilite), var(--cam-shadow) !important;
+}
+#navigator-toolbox { text-shadow: 0 1px 8px rgba(0, 0, 0, .35); }
+
+/* address bar results: the same glass */
+#urlbar[breakout-extend] .urlbar-background {
+  background: var(--cam-glass), rgba(22, 19, 42, .62) !important;
+  backdrop-filter: var(--cam-blur) !important;
+  border-top-color: rgba(255, 255, 255, .34) !important;
+  box-shadow: var(--cam-hilite), 0 0 0 2px rgba(143, 180, 255, .45), var(--cam-shadow) !important;
+}
+
+/* tabs lift and catch light, buttons press like glass */
+.tabbrowser-tab .tab-background { transition: background-color .3s var(--cam-ease), box-shadow .3s var(--cam-ease), transform .3s var(--cam-ease) !important; }
+.tabbrowser-tab:not([selected]):hover .tab-background { transform: translateX(2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18) !important; }
+.tabbrowser-tab[selected] .tab-background { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 6px 18px -8px rgba(0, 0, 0, .5) !important; }
+.tabbrowser-tab[zen-essential]:hover .tab-background { transform: translateY(-2px); }
+toolbarbutton > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) { transition: transform .2s var(--cam-ease), background-color .2s var(--cam-ease) !important; }
+toolbarbutton:active:hover > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack), .tabbrowser-tab:active .tab-background { transform: scale(.94); }
