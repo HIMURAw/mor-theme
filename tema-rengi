@@ -7,7 +7,6 @@
 Live at once: Dynamic Island, Glass Dock, Glass Widgets, Glass Windows (they watch the palette),
 Glass Files. Regenerated here: GTK 3/4 + Shell theme, libadwaita accent, wallpaper, Zen and Spotify (next start).
 Icons (~34k) are rebuilt in the background and swapped in when ready (2–3 minutes).
-The Harvis robot keeps its violet in every theme.
 """
 import json
 import re
