@@ -1,0 +1,94 @@
+<!doctype html><meta charset="utf-8">
+<!-- The "fume" (Smoke) theme's wallpaper: a warm living room at dusk, slightly out of focus, the way
+     the glassy dashboard Umut liked (2026-11-01) floats its smoked glass over a room photo.
+     tema-rengi renders it once to sablon/duvar/fume.png (headless Chromium). -->
+<style>html,body{margin:0;background:#1a1512}canvas{display:block}</style>
+<canvas id="scene"></canvas>
+<script>
+const cv = document.getElementById('scene'), ctx = cv.getContext('2d');
+const W = innerWidth, H = innerHeight, S = W / 1440;
+cv.width = W; cv.height = H;
+function rnd(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+const r = rnd(29);
+function rr(x, y, w, h, rad, fill) { ctx.beginPath(); ctx.roundRect(x, y, w, h, rad); ctx.fillStyle = fill; ctx.fill(); }
+function glow(x, y, rad, c, a) {
+  const g = ctx.createRadialGradient(x, y, 0, x, y, rad);
+  g.addColorStop(0, `rgba(${c},${a})`); g.addColorStop(.35, `rgba(${c},${a * .35})`); g.addColorStop(1, `rgba(${c},0)`);
+  const op = ctx.globalCompositeOperation; ctx.globalCompositeOperation = 'screen';
+  ctx.fillStyle = g; ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  ctx.globalCompositeOperation = op;
+}
+// The back wall: warm plaster, lit from the right, darker at the top and corners.
+let g = ctx.createLinearGradient(0, 0, W, 0);
+g.addColorStop(0, '#3a2c22'); g.addColorStop(.45, '#6b5646'); g.addColorStop(.8, '#86705c'); g.addColorStop(1, '#4b3a2d');
+ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+g = ctx.createLinearGradient(0, 0, 0, H);
+g.addColorStop(0, 'rgba(20,15,12,.55)'); g.addColorStop(.5, 'rgba(20,15,12,0)'); g.addColorStop(1, 'rgba(20,15,12,.35)');
+ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+// Wall panels: faint vertical joints.
+for (let i = 1; i < 6; i++) { ctx.fillStyle = 'rgba(0,0,0,.08)'; ctx.fillRect(W * (.2 + i * .12), 0, 2 * S, H * .62); }
+
+ctx.filter = `blur(${3 * S}px)`;  // shallow depth of field: the room is just out of focus
+// Built-in walnut shelves left and right, a warm LED under each shelf.
+for (const [x0, w] of [[W * .08, W * .17], [W * .75, W * .17]]) {
+  rr(x0, H * .04, w, H * .58, 6 * S, '#2c211a');
+  rr(x0 + 10 * S, H * .06, w - 20 * S, H * .54, 4 * S, '#3a2b20');
+  for (let k = 0; k < 3; k++) {
+    const y = H * (.2 + k * .17);
+    glow(x0 + w / 2, y + 6 * S, w * .7, '255,170,95', .5);
+    rr(x0 + 10 * S, y, w - 20 * S, 7 * S, 2 * S, '#5a4130');
+    ctx.fillStyle = 'rgba(255,196,128,.55)'; ctx.fillRect(x0 + 14 * S, y + 7 * S, w - 28 * S, 2 * S);
+    // books, vases and a plant on each shelf
+    let bx = x0 + 22 * S;
+    while (bx < x0 + w - 40 * S) {
+      const bw = (8 + r() * 14) * S, bh = (34 + r() * 46) * S;
+      if (r() < .25) { rr(bx, y - bh * .7, bw * 2.2, bh * .7, bw, `rgba(${210 + r() * 30},${200 + r() * 25},${185 + r() * 20},.85)`); bx += bw * 3; continue; }
+      rr(bx, y - bh, bw, bh, 2 * S, ['#6b5a4c', '#c9bba8', '#3f342c', '#8c7a66', '#e0d6c6'][Math.floor(r() * 5)]);
+      bx += bw + (r() < .3 ? 30 * S : 3 * S);
+    }
+    if (k === 1) for (let l = 0; l < 14; l++) {
+      ctx.fillStyle = `rgba(${70 + r() * 30},${100 + r() * 40},${60 + r() * 20},.9)`;
+      ctx.beginPath(); ctx.ellipse(x0 + w * .7 + (r() - .5) * 60 * S, y - 50 * S + (r() - .2) * 70 * S, 14 * S, 6 * S, r() * 3, 0, 7); ctx.fill();
+    }
+  }
+}
+// The TV wall between them: a dark screen with a soft reflection.
+rr(W * .31, H * .17, W * .38, H * .3, 4 * S, '#141110');
+g = ctx.createLinearGradient(W * .31, H * .17, W * .69, H * .47);
+g.addColorStop(0, 'rgba(255,255,255,.06)'); g.addColorStop(.5, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,220,180,.04)');
+ctx.fillStyle = g; ctx.fillRect(W * .31, H * .17, W * .38, H * .3);
+// Long walnut console under it, warm light falling on the wall behind.
+glow(W * .5, H * .56, W * .42, '255,170,100', .3);
+rr(W * .1, H * .55, W * .8, H * .1, 6 * S, '#5c4231');
+for (let i = 1; i < 3; i++) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(W * .1 + W * .8 * i / 3, H * .555, 2 * S, H * .09); }
+ctx.fillStyle = 'rgba(255,214,160,.25)'; ctx.fillRect(W * .1, H * .55, W * .8, 3 * S);
+rr(W * .3, H * .5, 26 * S, 50 * S, 6 * S, '#1e1a17');  // a speaker
+rr(W * .62, H * .515, 22 * S, 36 * S, 11 * S, '#d8cdbd');  // a vase
+// Floor lamp on the right: the strongest light in the room.
+ctx.fillStyle = '#3a2a1f'; ctx.fillRect(W * .935, H * .2, 5 * S, H * .7);
+rr(W * .9, H * .2, 70 * S, 56 * S, 10 * S, '#cfc4b5');
+glow(W * .925, H * .3, W * .3, '255,170,90', .55);
+glow(W * .2, H * .12, W * .25, '255,180,110', .18);
+// Floor: a pale rug on warm oak, darker toward the viewer.
+g = ctx.createLinearGradient(0, H * .66, 0, H);
+g.addColorStop(0, '#6a5444'); g.addColorStop(1, '#2a1f18');
+ctx.fillStyle = g; ctx.fillRect(0, H * .66, W, H * .34);
+ctx.fillStyle = 'rgba(214,196,170,.28)'; ctx.beginPath(); ctx.ellipse(W * .5, H * .86, W * .42, H * .1, 0, 0, 7); ctx.fill();
+// Sofa corner on the left and a low oval coffee table in front.
+rr(-40 * S, H * .58, W * .17, H * .26, 26 * S, '#3f3933');
+rr(-40 * S, H * .66, W * .2, H * .2, 26 * S, '#4d453e');
+ctx.fillStyle = 'rgba(255,220,180,.12)'; ctx.fillRect(-40 * S, H * .66, W * .2, 4 * S);
+ctx.filter = `blur(${7 * S}px)`;  // the table is nearest, the most out of focus
+rr(W * .22, H * .79, W * .56, H * .07, 40 * S, '#8a6a50');
+ctx.fillStyle = 'rgba(255,220,180,.25)'; ctx.fillRect(W * .25, H * .79, W * .5, 3 * S);
+rr(W * .27, H * .85, W * .05, H * .15, 10 * S, '#6d523e'); rr(W * .68, H * .85, W * .05, H * .15, 10 * S, '#6d523e');
+rr(W * .45, H * .74, 30 * S, 48 * S, 8 * S, '#cfc6ba'); rr(W * .48, H * .755, 26 * S, 36 * S, 8 * S, '#b8ad9f');
+ctx.filter = 'none';
+// Dusk grade: warm, a touch of vignette, very fine grain so the blur under the glass has texture.
+g = ctx.createRadialGradient(W * .55, H * .45, W * .2, W * .5, H * .5, W * .8);
+g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(10,6,4,.55)');
+ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+const img = ctx.getImageData(0, 0, W, H), d = img.data;
+for (let i = 0; i < d.length; i += 4) { const n = (r() - .5) * 8; d[i] += n; d[i + 1] += n; d[i + 2] += n; }
+ctx.putImageData(img, 0, 0);
+</script>

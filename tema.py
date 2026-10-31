@@ -32,8 +32,12 @@ THEMES = {
             "icon_hue": 220, "icon_lum": 0.85, "icon_sat": 0.0},
     "gri": {"hue": 0, "sat": 0.0, "lum": 0.85, "accent": "slate", "label": "Grey",
             "icon_hue": 0, "icon_lum": 0.9, "icon_sat": 0.0},
+    # Smoke: dark smoked glass, amber accent, blur transitions in the shell (2026-11-01). Shares
+    # cam's rounded shapes; its own extras where it has them, cam's ("base") elsewhere.
+    "fume": {"hue": 28, "sat": 0.95, "lum": 0.9, "accent": "orange", "label": "Smoke", "round": True,
+             "base": "cam", "icon_hue": 28, "icon_lum": 0.8, "icon_sat": 0.0},
 }
-ALIASES = {"glass": "cam", "frosted": "cam", "turquoise": "turkuaz", "green": "yesil", "yeşil": "yesil", "blue": "mavi", "purple": "mor",
+ALIASES = {"glass": "cam", "frosted": "cam", "smoke": "fume", "füme": "fume", "duman": "fume", "turquoise": "turkuaz", "green": "yesil", "yeşil": "yesil", "blue": "mavi", "purple": "mor",
            "violet": "mor", "grey": "gri", "gray": "gri", "siyah": "gri", "beyaz": "gri", "mono": "gri"}
 
 

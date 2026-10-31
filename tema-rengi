@@ -100,8 +100,11 @@ def theme_extra(part, f, p):
     """A theme's own additions to sablon/<part>/<f>, from sablon/<part>/<theme>.<f> (e.g.
     sablon/zen/cam.userChrome.css): shape and glass that recolouring can't express. Appended
     after the recoloured template as is, so it wins on equal specificity; "" if the theme has none."""
-    extra = HERE / "sablon" / part / f"{p['name']}.{f}"
-    return "\n\n" + extra.read_text() if extra.exists() else ""
+    for name in (p["name"], p.get("base")):  # fume borrows cam's where it has none of its own
+        extra = HERE / "sablon" / part / f"{name}.{f}"
+        if name and extra.exists():
+            return "\n\n" + extra.read_text()
+    return ""
 
 
 def zen_chrome_dirs():
@@ -122,8 +125,9 @@ def zen(p):
             if src.exists() and (not dest.exists() or MARK in dest.read_text(errors="ignore")):
                 dest.write_text(tema.recolor_css(src.read_text(), p) + theme_extra("zen", f, p))
         # a theme's backdrop image (cam: the wallpaper, pre-blurred), read by its userChrome as url()
-        art = HERE / "sablon/zen" / f"{p['name']}.backdrop.jpg"
-        if art.exists():
+        art = next((HERE / "sablon/zen" / f"{n}.backdrop.jpg" for n in (p["name"], p.get("base"))
+                    if n and (HERE / "sablon/zen" / f"{n}.backdrop.jpg").exists()), None)
+        if art:
             shutil.copyfile(art, chrome / "tema-backdrop.jpg")
     return bool(dirs)
 
