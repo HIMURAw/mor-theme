@@ -56,3 +56,7 @@ body, .Root__top-container {
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-thumb { background: var(--mor-line); }
 ::-webkit-scrollbar-thumb:hover { background: rgba(168, 132, 255, .35); }
+
+/* the now-playing panel keeps a spinner turning inside its hidden action button forever; under the
+   blurred glass that repaints the whole panel every frame (~70% CPU). Only hidden buttons are stopped. */
+.main-nowPlayingView-actionButtonHidden .main-nowPlayingView-loadingSpinner { animation: none !important; visibility: hidden !important; }

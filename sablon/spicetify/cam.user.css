@@ -136,9 +136,10 @@ button[data-encore-id="buttonPrimary"], button[data-encore-id="buttonSecondary"]
   background-size: cover; background-position: center;
   filter: blur(90px) saturate(170%) brightness(.85);
   opacity: 0; transition: opacity 1.6s var(--cam-ease);
-  animation: cam-drift 46s ease-in-out infinite alternate;
+  /* no endless drift: animating under the blurred glass panels re-blurred them every frame (~150% CPU) */
 }
-#cam-backdrop .cam-art:nth-child(2) { animation-duration: 58s; animation-direction: alternate-reverse; }
+#cam-backdrop .cam-art:nth-child(2) { transform: scale(1.08) rotate(-6deg); }
+#cam-backdrop .cam-art { transform: scale(1.12) rotate(4deg); }
 #cam-backdrop .cam-art.on { opacity: 1; }
 #cam-backdrop .cam-veil {
   position: absolute; inset: 0;
