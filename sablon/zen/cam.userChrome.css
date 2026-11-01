@@ -159,7 +159,7 @@ button.primary, .panel-footer > button[default], #editBookmarkPanelDoneButton {
   content: ""; position: absolute; inset: -25%; z-index: -1; pointer-events: none;
   background: url("tema-backdrop.jpg") center / cover no-repeat;
   filter: blur(30px) saturate(140%) brightness(.9);
-  animation: cam-drift 50s ease-in-out infinite alternate;
+  transform: scale(1.1) rotate(3deg); /* static: an endless drift under the blurred glass repainted every frame */
 }
 #zen-main-app-wrapper::after {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
